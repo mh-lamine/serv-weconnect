@@ -1,0 +1,7 @@
+#### Service
+
+probleme: comment afficher les créneaux disponibles pour un Service
+
+solution: filtrer les créneaux disponibles en fonction des rendez-vous programmés du prestataire pour n'afficher que les créneaux hors des horaires de renedz-vous programmés afin déviter les chevauchements
+
+fix: s'assurer que la table des rendez-vous enregistre précisémment les informations nécéssaires (date, startTime, endTime?)

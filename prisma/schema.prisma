@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id                     String   @id @default(cuid())
+  email                  String   @unique
+  password               String
+  phoneNumber            String   @unique
+  address                String
+  isProvider             Boolean  @default(false)
+  hasActiveSubscription  Boolean  @default(false)
+  isInVacancyMode        Boolean  @default(false)
+  autoAcceptAppointments Boolean  @default(false)
+  firstName              String?
+  lastName               String?
+  providerName           String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  appointmentsAsProvider Appointment[]     @relation("provider")
+  appointmentsAsClient   Appointment[]     @relation("client")
+  providerServices        ProviderService[]
+  availabilities         Availability[]
+}
+
+model Availability {
+  id        String    @id @default(cuid())
+  dayOfWeek DayOfWeek
+  startTime DateTime
+  endTime   DateTime
+
+  providerId String
+  provider   User   @relation(fields: [providerId], references: [id])
+}
+
+model Appointment {
+  id        String            @id @default(cuid())
+  date      DateTime
+  status    AppointmentStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  providerId String
+  clientId   String
+  serviceId  String
+  provider   User   @relation("provider", fields: [providerId], references: [id])
+  client     User   @relation("client", fields: [clientId], references: [id])
+  service    Service @relation(fields: [serviceId], references: [id])
+}
+
+model Service {
+  id   String @id @default(cuid())
+  name String
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  providerService ProviderService[]
+  appointments    Appointment[]
+}
+
+model Category {
+  id   String @id @default(cuid())
+  name String
+
+  services Service[]
+}
+
+model ProviderService {
+  id       String   @id @default(cuid())
+  duration Int
+
+  reviews   Review[]
+
+  providerId String
+  serviceId  String
+  provider   User    @relation(fields: [providerId], references: [id])
+  service    Service @relation(fields: [serviceId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Float
+  comment   String?
+  createdAt DateTime @default(now())
+
+  providerServiceId String
+  providerService   ProviderService @relation(fields: [providerServiceId], references: [id])
+}
+
+enum AppointmentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
