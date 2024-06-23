@@ -26,8 +26,11 @@ model User {
 
   appointmentsAsProvider Appointment[]     @relation("provider")
   appointmentsAsClient   Appointment[]     @relation("client")
-  providerServices        ProviderService[]
+  providerCategories     ProviderCategory[]
+  reviewsAsProvider      Review[]          @relation("provider")
+  reviewsAsClient        Review[]          @relation("client")
   availabilities         Availability[]
+  tags                   Tags[]
 }
 
 model Availability {
@@ -44,6 +47,7 @@ model Appointment {
   id        String            @id @default(cuid())
   date      DateTime
   status    AppointmentStatus @default(PENDING)
+  details  String?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
@@ -52,37 +56,32 @@ model Appointment {
   serviceId  String
   provider   User   @relation("provider", fields: [providerId], references: [id])
   client     User   @relation("client", fields: [clientId], references: [id])
-  service    Service @relation(fields: [serviceId], references: [id])
+  service    ProviderService @relation(fields: [serviceId], references: [id])
 }
 
-model Service {
+model Tags {
   id   String @id @default(cuid())
   name String
-
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-
-  providerService ProviderService[]
-  appointments    Appointment[]
+  users User[]
 }
 
-model Category {
-  id   String @id @default(cuid())
-  name String
-
-  services Service[]
+model ProviderCategory {
+  id          String   @id @default(cuid())
+  name        String
+  providerId  String
+  provider    User     @relation(fields: [providerId], references: [id])
+  
+  services    ProviderService[]
 }
 
 model ProviderService {
-  id       String   @id @default(cuid())
-  duration Int
-
-  reviews   Review[]
-
-  providerId String
-  serviceId  String
-  provider   User    @relation(fields: [providerId], references: [id])
-  service    Service @relation(fields: [serviceId], references: [id])
+  id                String   @id @default(cuid())
+  name              String
+  price             Float
+  duration          Int
+  providerCategoryId String
+  providerCategory  ProviderCategory @relation(fields: [providerCategoryId], references: [id])
+  appointments      Appointment[]
 }
 
 model Review {
@@ -91,8 +90,10 @@ model Review {
   comment   String?
   createdAt DateTime @default(now())
 
-  providerServiceId String
-  providerService   ProviderService @relation(fields: [providerServiceId], references: [id])
+  providerId String
+  clientId   String
+  provider   User   @relation("provider", fields: [providerId], references: [id])
+  client     User   @relation("client", fields: [clientId], references: [id])
 }
 
 enum AppointmentStatus {
