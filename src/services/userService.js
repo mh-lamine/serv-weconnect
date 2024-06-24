@@ -5,19 +5,17 @@ exports.createUser = async (data) => {
   return await prisma.user.create({ data });
 };
 
-exports.getProviders = async (filters) => {
-  const { category, serviceId, dayOfWeek, startTime, endTime } = filters;
+exports.getProvidersByFilters = async (filters) => {
+  const { tags, serviceId, dayOfWeek, startTime, endTime } = filters;
 
   const query = {
     where: {
       isProvider: true,
-      ...(category && {
-        providerServices: {
+      ...(tags && {
+        tags: {
           some: {
-            service: {
-              category: {
-                name: category,
-              },
+            name: {
+              in: tags,
             },
           },
         },
@@ -52,11 +50,13 @@ exports.getProviders = async (filters) => {
         },
       },
       availabilities: true,
+      tags: true,
     },
   };
 
   return await prisma.user.findMany(query);
 };
+
 
 exports.getUserById = async (id) => {
   return await prisma.user.findUnique({ where: { id } });

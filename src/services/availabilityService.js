@@ -5,7 +5,7 @@ exports.createAvailability = async (data) => {
   return await prisma.availability.create({ data });
 };
 
-exports.getProviderAvailability = async (id) => {
+exports.getProviderAvailabilities = async (id) => {
   return await prisma.availability.findMany({ where: {
     providerId: id
   } });

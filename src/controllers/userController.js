@@ -28,10 +28,10 @@ exports.createUser = async (req, res, next) => {
   }
 };
 
-exports.getProviders = async (req, res, next) => {
+exports.getProvidersByFilters = async (req, res, next) => {
   try {
     const filters = req.body;
-    const providers = await userService.getProviders(filters);
+    const providers = await userService.getProvidersByFilters(filters);
     res.json(providers);
   } catch (error) {
     next(error);
