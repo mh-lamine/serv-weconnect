@@ -6,7 +6,7 @@ const providerServiceSchema = Joi.object({
   price: Joi.number().required(),
   duration: Joi.number().required(),
   description: Joi.string(),
-  providerCategoryId: Joi.string.required(),
+  providerCategoryId: Joi.string().required(),
 });
 
 exports.createProviderService = async (req, res, next) => {
