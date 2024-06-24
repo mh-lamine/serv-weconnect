@@ -40,7 +40,7 @@ model Availability {
   endTime   DateTime
 
   providerId String
-  provider   User   @relation(fields: [providerId], references: [id])
+  provider   User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
 }
 
 model Appointment {
@@ -54,8 +54,8 @@ model Appointment {
   providerId String
   clientId   String
   serviceId  String
-  provider   User   @relation("provider", fields: [providerId], references: [id])
-  client     User   @relation("client", fields: [clientId], references: [id])
+  provider   User   @relation("provider", fields: [providerId], references: [id], onDelete: Cascade)
+  client     User   @relation("client", fields: [clientId], references: [id], onDelete: Cascade)
   service    ProviderService @relation(fields: [serviceId], references: [id])
 }
 
@@ -69,7 +69,7 @@ model ProviderCategory {
   id          String   @id @default(cuid())
   name        String
   providerId  String
-  provider    User     @relation(fields: [providerId], references: [id])
+  provider    User     @relation(fields: [providerId], references: [id], onDelete: Cascade)
   
   services    ProviderService[]
 }
@@ -79,8 +79,9 @@ model ProviderService {
   name              String
   price             Float
   duration          Int
+  description       String?
   providerCategoryId String
-  providerCategory  ProviderCategory @relation(fields: [providerCategoryId], references: [id])
+  providerCategory  ProviderCategory @relation(fields: [providerCategoryId], references: [id], onDelete: Cascade)
   appointments      Appointment[]
 }
 
@@ -89,11 +90,10 @@ model Review {
   rating    Float
   comment   String?
   createdAt DateTime @default(now())
-
   providerId String
-  clientId   String
-  provider   User   @relation("provider", fields: [providerId], references: [id])
-  client     User   @relation("client", fields: [clientId], references: [id])
+  clientId   String?
+  provider   User  @relation("provider", fields: [providerId], references: [id], onDelete: Cascade)
+  client     User ?  @relation("client", fields: [clientId], references: [id], onDelete: SetNull)
 }
 
 enum AppointmentStatus {
