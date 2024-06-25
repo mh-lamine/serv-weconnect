@@ -2,6 +2,7 @@ const userService = require("../services/userService");
 const Joi = require("joi");
 
 const userSchema = Joi.object({
+  id: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().required(),
   phoneNumber: Joi.string().required(),

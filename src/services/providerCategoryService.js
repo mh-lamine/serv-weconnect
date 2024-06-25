@@ -7,7 +7,7 @@ exports.createProviderCategory = async (data) => {
 
 exports.getProviderCategories = async (id) => {
   return await prisma.providerCategory.findMany({
-    where: { id },
+    where: { providerId: id },
     include: { services: true },
   });
 };

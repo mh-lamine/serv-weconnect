@@ -22,10 +22,10 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/availabilities", availabilityRoutes);
-app.use("api/reviews", reviewRoutes);
-app.use("api/providerCategory", providerCategoryRoutes);
-app.use("api/providerService", providerServiceRoutes);
-app.use("api/tags", tagsRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/providerCategory", providerCategoryRoutes);
+app.use("/api/providerService", providerServiceRoutes);
+app.use("/api/tags", tagsRoutes);
 app.use(errorHandler);
 
 module.exports = app;

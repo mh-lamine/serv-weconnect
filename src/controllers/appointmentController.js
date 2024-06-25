@@ -2,17 +2,19 @@ const appointmentService = require("../services/appointmentService");
 const Joi = require("joi");
 
 const appointmentSchema = Joi.object({
-  date: Joi.date(),
+  date: Joi.date().required(),
   status: Joi.string().valid(
     "PENDING",
     "ACCEPTED",
     "REJECTED",
     "CANCELLED",
     "COMPLETED"
-  ),
-  providerId: Joi.string(),
-  clientId: Joi.string(),
-}).or("date", "status", "providerId", "clientId");
+  ).required(),
+  details: Joi.string(),
+  serviceId: Joi.string().required(),
+  providerId: Joi.string().required(),
+  clientId: Joi.string().required(),
+});
 
 exports.createAppointment = async (req, res, next) => {
   try {

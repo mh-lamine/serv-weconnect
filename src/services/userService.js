@@ -57,7 +57,6 @@ exports.getProvidersByFilters = async (filters) => {
   return await prisma.user.findMany(query);
 };
 
-
 exports.getUserById = async (id) => {
   return await prisma.user.findUnique({ where: { id } });
 };
