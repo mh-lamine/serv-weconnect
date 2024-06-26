@@ -10,8 +10,6 @@ const providerCategoryRoutes = require("./routes/providerCategoryRoutes");
 const providerServiceRoutes = require("./routes/providerServiceRoutes");
 const tagsRoutes = require("./routes/tagsRoutes");
 
-const errorHandler = require("./utils/errorHandler");
-
 const app = express();
 
 app.use(cors());
@@ -26,6 +24,5 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/providerCategory", providerCategoryRoutes);
 app.use("/api/providerService", providerServiceRoutes);
 app.use("/api/tags", tagsRoutes);
-app.use(errorHandler);
 
 module.exports = app;
