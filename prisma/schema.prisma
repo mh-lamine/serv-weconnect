@@ -27,6 +27,7 @@ model User {
   appointmentsAsProvider Appointment[]     @relation("provider")
   appointmentsAsClient   Appointment[]     @relation("client")
   providerCategories     ProviderCategory[]
+  providerServices       ProviderService[]
   reviewsAsProvider      Review[]          @relation("provider")
   reviewsAsClient        Review[]          @relation("client")
   availabilities         Availability[]
@@ -80,7 +81,9 @@ model ProviderService {
   price             Float
   duration          Int
   description       String?
+  providerId        String
   providerCategoryId String
+  provider          User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
   providerCategory  ProviderCategory @relation(fields: [providerCategoryId], references: [id], onDelete: Cascade)
   appointments      Appointment[]
 }

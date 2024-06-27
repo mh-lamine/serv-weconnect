@@ -6,7 +6,7 @@ exports.createUser = async (data) => {
 };
 
 exports.getProvidersByFilters = async (filters) => {
-  const { tags, serviceId, dayOfWeek, startTime, endTime } = filters;
+  const { tags, dayOfWeek, startTime, endTime } = filters;
 
   const query = {
     where: {
@@ -17,13 +17,6 @@ exports.getProvidersByFilters = async (filters) => {
             name: {
               in: tags,
             },
-          },
-        },
-      }),
-      ...(serviceId && {
-        providerServices: {
-          some: {
-            serviceId: serviceId,
           },
         },
       }),
@@ -44,13 +37,8 @@ exports.getProvidersByFilters = async (filters) => {
         }),
     },
     include: {
-      providerServices: {
-        include: {
-          service: true,
-        },
-      },
+      providerServices: true,
       availabilities: true,
-      tags: true,
     },
   };
 

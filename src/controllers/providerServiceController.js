@@ -6,6 +6,7 @@ const providerServiceSchema = Joi.object({
   price: Joi.number().required(),
   duration: Joi.number().required(),
   description: Joi.string(),
+  providerId: Joi.string().required(),
   providerCategoryId: Joi.string().required(),
 });
 
