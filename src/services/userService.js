@@ -37,7 +37,7 @@ exports.getProvidersByFilters = async (filters) => {
         }),
     },
     include: {
-      providerServices: true,
+      providerCategories: true,
       availabilities: true,
     },
   };
@@ -46,7 +46,13 @@ exports.getProvidersByFilters = async (filters) => {
 };
 
 exports.getUserById = async (id) => {
-  return await prisma.user.findUnique({ where: { id } });
+  return await prisma.user.findUnique({
+    where: { id },
+    include: {
+      providerCategories: true,
+      availabilities: true,
+    },
+  });
 };
 
 exports.updateUser = async (id, data) => {
