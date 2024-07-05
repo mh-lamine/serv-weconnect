@@ -4,6 +4,7 @@
   "main": "server.js",
   "scripts": {
     "server": "nodemon src/server.js",
+    "start": "node src/server.js",
     "seed": "node prisma/seed.js"
   },
   "keywords": [],
