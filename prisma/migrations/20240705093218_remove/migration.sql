@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Appointment" ALTER COLUMN "date" SET DATA TYPE TEXT;
+
+-- AlterTable
+ALTER TABLE "Availability" ALTER COLUMN "startTime" SET DATA TYPE TEXT,
+ALTER COLUMN "endTime" SET DATA TYPE TEXT;
