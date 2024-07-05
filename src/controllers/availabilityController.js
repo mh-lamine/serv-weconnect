@@ -13,8 +13,8 @@ const availabilitySchema = Joi.object({
       "SUNDAY"
     )
     .required(),
-  startTime: Joi.date().required(),
-  endTime: Joi.date().required(),
+  startTime: Joi.number().integer().required(),
+  endTime: Joi.number().integer().required(),
   providerId: Joi.string().required(),
 });
 
