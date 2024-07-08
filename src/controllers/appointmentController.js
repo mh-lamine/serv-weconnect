@@ -2,7 +2,7 @@ const appointmentService = require("../services/appointmentService");
 const Joi = require("joi");
 
 const appointmentSchema = Joi.object({
-  date: Joi.date().required(),
+  date: Joi.string().required(),
   status: Joi.string().valid(
     "PENDING",
     "ACCEPTED",

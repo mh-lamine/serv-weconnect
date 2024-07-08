@@ -37,8 +37,8 @@ model User {
 model Availability {
   id        String    @id @default(cuid())
   dayOfWeek DayOfWeek
-  startTime Int
-  endTime   Int
+  startTime String
+  endTime   String
 
   providerId String
   provider   User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
@@ -46,7 +46,7 @@ model Availability {
 
 model Appointment {
   id        String            @id @default(cuid())
-  date      Int
+  date      String
   status    AppointmentStatus @default(PENDING)
   details  String?
   createdAt DateTime          @default(now())
