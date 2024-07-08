@@ -3,13 +3,9 @@ const Joi = require("joi");
 
 const appointmentSchema = Joi.object({
   date: Joi.string().required(),
-  status: Joi.string().valid(
-    "PENDING",
-    "ACCEPTED",
-    "REJECTED",
-    "CANCELLED",
-    "COMPLETED"
-  ).required(),
+  status: Joi.string()
+    .valid("PENDING", "ACCEPTED", "REJECTED", "CANCELLED", "COMPLETED")
+    .required(),
   details: Joi.string(),
   serviceId: Joi.string().required(),
   providerId: Joi.string().required(),
@@ -19,13 +15,14 @@ const appointmentSchema = Joi.object({
 exports.createAppointment = async (req, res, next) => {
   try {
     const { error } = appointmentSchema.validate(req.body);
-    if (error)
+    if (error) {
       return res.status(400).json({ message: error.details[0].message });
+    }
 
     const appointment = await appointmentService.createAppointment(req.body);
     res.status(201).json(appointment);
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 

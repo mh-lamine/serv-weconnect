@@ -2,6 +2,21 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.createAppointment = async (data) => {
+  const { date, providerId } = data;
+
+  const existingAppointment = await prisma.appointment.findFirst({
+    where: {
+      date,
+      providerId,
+    },
+  });
+
+  if (existingAppointment) {
+    const error = new Error("Time slot already booked");
+    error.statusCode = 409; // Conflict
+    throw error;
+  }
+
   return await prisma.appointment.create({ data });
 };
 
