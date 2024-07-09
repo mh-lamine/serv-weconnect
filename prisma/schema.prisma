@@ -47,6 +47,7 @@ model Availability {
 model Appointment {
   id        String            @id @default(cuid())
   date      String
+  duration Int
   status    AppointmentStatus @default(PENDING)
   details  String?
   createdAt DateTime          @default(now())

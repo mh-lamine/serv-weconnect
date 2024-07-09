@@ -6,13 +6,14 @@ const appointmentSchema = Joi.object({
   status: Joi.string()
     .valid("PENDING", "ACCEPTED", "REJECTED", "CANCELLED", "COMPLETED")
     .required(),
+  duration: Joi.number().required(),
   details: Joi.string(),
   serviceId: Joi.string().required(),
   providerId: Joi.string().required(),
   clientId: Joi.string().required(),
 });
 
-exports.createAppointment = async (req, res, next) => {
+exports.createAppointment = async (req, res) => {
   try {
     const { error } = appointmentSchema.validate(req.body);
     if (error) {

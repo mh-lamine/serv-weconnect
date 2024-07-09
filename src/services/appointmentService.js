@@ -1,19 +1,24 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const { DateTime } = require("luxon");
 
 exports.createAppointment = async (data) => {
   const { date, providerId } = data;
 
+  const dateTime = DateTime.fromISO(date).setLocale("en");
+
   const existingAppointment = await prisma.appointment.findFirst({
     where: {
-      date,
+      date: {
+        startsWith: dateTime.toISODate(),
+      },
       providerId,
     },
   });
 
   if (existingAppointment) {
     const error = new Error("Time slot already booked");
-    error.statusCode = 409; // Conflict
+    error.statusCode = 409;
     throw error;
   }
 
