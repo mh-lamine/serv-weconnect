@@ -46,7 +46,11 @@ exports.generateTimeSlots = (slotStartTime, slotEndTime, serviceDuration) => {
   }).toISOTime();
   const slotEnd = DateTime.fromISO(slotEndTime).toISOTime();
 
-  while (currentSlotEnd <= slotEnd) {
+  const isFutureSlot = (slotStart) => {
+    return DateTime.now() < DateTime.fromISO(slotStart);
+  }
+
+  while (currentSlotEnd <= slotEnd && isFutureSlot(currentSlotStart)) {
     timeSlots.push({
       start: DateTime.fromISO(currentSlotStart).toLocaleString(DateTime.TIME_24_SIMPLE),
       end: DateTime.fromISO(currentSlotEnd).toLocaleString(DateTime.TIME_24_SIMPLE),
