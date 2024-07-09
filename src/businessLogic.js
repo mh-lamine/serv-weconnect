@@ -38,28 +38,42 @@ exports.generateAvailableRanges = (availability, appointments) => {
   return availableRanges;
 };
 
-exports.generateTimeSlots = (slotStartTime, slotEndTime, serviceDuration) => {
+exports.generateTimeSlots = (
+  slotStartTime,
+  slotEndTime,
+  serviceDuration,
+  todaysDate
+) => {
   const timeSlots = [];
   let currentSlotStart = DateTime.fromISO(slotStartTime).toISOTime();
-  let currentSlotEnd = DateTime.fromISO(slotStartTime).plus({
-    minutes: serviceDuration,
-  }).toISOTime();
+  let currentSlotEnd = DateTime.fromISO(slotStartTime)
+    .plus({
+      minutes: serviceDuration,
+    })
+    .toISOTime();
   const slotEnd = DateTime.fromISO(slotEndTime).toISOTime();
 
-  const isFutureSlot = (slotStart) => {
-    return DateTime.now() < DateTime.fromISO(slotStart);
-  }
+  const isFutureSlot = (slotStart) =>
+    DateTime.now().toISODate() !== DateTime.fromISO(todaysDate).toISODate()
+      ? true
+      : DateTime.now().toISO() < DateTime.fromISO(slotStart).toISO();
 
   while (currentSlotEnd <= slotEnd && isFutureSlot(currentSlotStart)) {
     timeSlots.push({
-      start: DateTime.fromISO(currentSlotStart).toLocaleString(DateTime.TIME_24_SIMPLE),
-      end: DateTime.fromISO(currentSlotEnd).toLocaleString(DateTime.TIME_24_SIMPLE),
+      start: DateTime.fromISO(currentSlotStart).toLocaleString(
+        DateTime.TIME_24_SIMPLE
+      ),
+      end: DateTime.fromISO(currentSlotEnd).toLocaleString(
+        DateTime.TIME_24_SIMPLE
+      ),
     });
 
     currentSlotStart = currentSlotEnd;
-    currentSlotEnd = DateTime.fromISO(currentSlotStart).plus({
-      minutes: serviceDuration,
-    }).toISOTime();
+    currentSlotEnd = DateTime.fromISO(currentSlotStart)
+      .plus({
+        minutes: serviceDuration,
+      })
+      .toISOTime();
   }
 
   return timeSlots;

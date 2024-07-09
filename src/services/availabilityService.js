@@ -35,7 +35,7 @@ exports.getProviderAvailabilities = async (id, date, serviceDuration) => {
     );
     availableRanges.forEach((range) => {
       availableSlots = availableSlots.concat(
-        generateTimeSlots(range.start, range.end, serviceDuration)
+        generateTimeSlots(range.start, range.end, serviceDuration, date)
       );
     });
   });
