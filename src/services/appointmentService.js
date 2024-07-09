@@ -5,13 +5,10 @@ const { DateTime } = require("luxon");
 exports.createAppointment = async (data) => {
   const { date, providerId } = data;
 
-  const dateTime = DateTime.fromISO(date).setLocale("en");
 
   const existingAppointment = await prisma.appointment.findFirst({
     where: {
-      date: {
-        startsWith: dateTime.toISODate(),
-      },
+      date,
       providerId,
     },
   });
