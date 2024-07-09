@@ -48,8 +48,8 @@ exports.generateTimeSlots = (slotStartTime, slotEndTime, serviceDuration) => {
 
   while (currentSlotEnd <= slotEnd) {
     timeSlots.push({
-      start: DateTime.fromISO(currentSlotStart).toLocaleString(DateTime.TIME_SIMPLE),
-      end: DateTime.fromISO(currentSlotEnd).toLocaleString(DateTime.TIME_SIMPLE),
+      start: DateTime.fromISO(currentSlotStart).toLocaleString(DateTime.TIME_24_SIMPLE),
+      end: DateTime.fromISO(currentSlotEnd).toLocaleString(DateTime.TIME_24_SIMPLE),
     });
 
     currentSlotStart = currentSlotEnd;
