@@ -34,9 +34,10 @@ exports.createAvailability = async (req, res, next) => {
 exports.getProviderAvailabilities = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const availability = await availabilityService.getProviderAvailabilities(id);
+    const {date, serviceDuration} = req.body;
+    const availability = await availabilityService.getProviderAvailabilities(id, date, serviceDuration);
     if (!availability)
-      return res.status(404).json({ message: "Provider not found" });
+      return res.status(404).json({ message: "No availability found" });
     res.json(availability);
   } catch (error) {
     next(error);

@@ -6,6 +6,7 @@ const appointmentSchema = Joi.object({
   status: Joi.string()
     .valid("PENDING", "ACCEPTED", "REJECTED", "CANCELLED", "COMPLETED")
     .required(),
+  duration: Joi.number().required(),
   details: Joi.string(),
   serviceId: Joi.string().required(),
   providerId: Joi.string().required(),
