@@ -1,21 +1,26 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { DateTime } = require("luxon");
 
-exports.createAppointment = async (data) => {
-  const { date, providerId } = data;
+exports.createAppointment = async (data, userId) => {
+  const { date, providerId, clientId } = data;
 
+  // Authorization check: Ensure userId matches providerId or implement your own logic
+  if (userId !== providerId || userId !== clientId) {
+    const error = new Error("Unauthorized to create appointment");
+    error.statusCode = 403; // Forbidden
+    throw error;
+  }
 
   const existingAppointment = await prisma.appointment.findFirst({
     where: {
       date,
-      providerId,
+      OR: [{ clientId: userId }, { providerId: userId }],
     },
   });
 
   if (existingAppointment) {
     const error = new Error("Time slot already booked");
-    error.statusCode = 409;
+    error.statusCode = 409; // Conflict
     throw error;
   }
 
@@ -44,10 +49,13 @@ exports.getAppointmentsAsProvider = async (id) => {
   return appointments;
 };
 
-exports.updateAppointment = async (id, data) => {
+exports.updateAppointment = async (userId, appointmentId, data) => {
   try {
     const appointment = await prisma.appointment.update({
-      where: { id },
+      where: {
+        id: appointmentId,
+        OR: [{ clientId: userId }, { providerId: userId }],
+      },
       data,
     });
     return appointment;
@@ -59,6 +67,18 @@ exports.updateAppointment = async (id, data) => {
   }
 };
 
-exports.deleteAppointment = async (id) => {
-  return await prisma.appointment.delete({ where: { id } });
+exports.deleteAppointment = async (userId, appointmentId) => {
+  try {
+    await prisma.appointment.delete({
+      where: {
+        id: appointmentId,
+        OR: [{ clientId: userId }, { providerId: userId }],
+      },
+    });
+  } catch (error) {
+    if (error.code === "P2025") {
+      return null;
+    }
+    throw error;
+  }
 };

@@ -1,72 +1,67 @@
 const availabilityService = require("../services/availabilityService");
-const Joi = require("joi");
 
-const availabilitySchema = Joi.object({
-  dayOfWeek: Joi.string()
-    .valid(
-      "MONDAY",
-      "TUESDAY",
-      "WEDNESDAY",
-      "THURSDAY",
-      "FRIDAY",
-      "SATURDAY",
-      "SUNDAY"
-    )
-    .required(),
-  startTime: Joi.string().required(),
-  endTime: Joi.string().required(),
-  providerId: Joi.string().required(),
-});
-
-exports.createAvailability = async (req, res, next) => {
+exports.createAvailability = async (req, res) => {
   try {
-    const { error } = availabilitySchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
-
-    const availability = await availabilityService.createAvailability(req.body);
+    const { id } = req.user;
+    const availability = await availabilityService.createAvailability(
+      id,
+      req.body
+    );
     res.status(201).json(availability);
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.getProviderAvailabilities = async (req, res, next) => {
+exports.getAvailableTimeSlots = async (req, res) => {
   try {
     const { id } = req.params;
-    const {date, serviceDuration} = req.body;
-    const availability = await availabilityService.getProviderAvailabilities(id, date, serviceDuration);
+    const { date, serviceDuration } = req.body;
+    const availability = await availabilityService.getAvailableTimeSlots(
+      id,
+      date,
+      serviceDuration
+    );
     if (!availability)
       return res.status(404).json({ message: "No availability found" });
     res.json(availability);
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.updateAvailability = async (req, res, next) => {
+exports.getDailyAvailabilities = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { error } = availabilitySchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
+    const { id } = req.user;
+    const availabilities = await availabilityService.getDailyAvailabilities(id);
+    res.json(availabilities);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
 
+exports.updateAvailability = async (req, res) => {
+  try {
+    const providerId = req.user.id;
+    const { availabilityId } = req.params;
     const availability = await availabilityService.updateAvailability(
-      id,
+      providerId,
+      availabilityId,
       req.body
     );
     res.json(availability);
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.deleteAvailability = async (req, res, next) => {
+exports.deleteAvailability = async (req, res) => {
   try {
-    const { id } = req.params;
-    await availabilityService.deleteAvailability(id);
+    const providerId = req.user.id;
+    const { availabilityId } = req.params;
+    await availabilityService.deleteAvailability(providerId, availabilityId);
     res.status(204).end();
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };

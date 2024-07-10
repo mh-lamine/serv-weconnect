@@ -1,64 +1,46 @@
 const appointmentService = require("../services/appointmentService");
-const Joi = require("joi");
-
-const appointmentSchema = Joi.object({
-  date: Joi.string().required(),
-  status: Joi.string()
-    .valid("PENDING", "ACCEPTED", "REJECTED", "CANCELLED", "COMPLETED")
-    .required(),
-  duration: Joi.number().required(),
-  details: Joi.string(),
-  serviceId: Joi.string().required(),
-  providerId: Joi.string().required(),
-  clientId: Joi.string().required(),
-});
 
 exports.createAppointment = async (req, res) => {
   try {
-    const { error } = appointmentSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
-
-    const appointment = await appointmentService.createAppointment(req.body);
+    const data = req.body;
+    const userId = req.user.id;
+    const appointment = await appointmentService.createAppointment(
+      data,
+      userId
+    );
     res.status(201).json(appointment);
   } catch (error) {
     res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.getAppointmentsAsClient = async (req, res, next) => {
+exports.getAppointmentsAsClient = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
     const appointments = await appointmentService.getAppointmentsAsClient(id);
     res.json(appointments);
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.getAppointmentsAsProvider = async (req, res, next) => {
+exports.getAppointmentsAsProvider = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
     const appointments = await appointmentService.getAppointmentsAsProvider(id);
     res.json(appointments);
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.updateAppointment = async (req, res, next) => {
+exports.updateAppointment = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { error } = appointmentSchema.validate(req.body, {
-      allowUnknown: true,
-      stripUnknown: true,
-    });
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
-
+    const userId = req.user.id;
+    const { appointmentId } = req.params;
     const appointment = await appointmentService.updateAppointment(
-      id,
+      userId,
+      appointmentId,
       req.body
     );
     if (!appointment) {
@@ -66,16 +48,17 @@ exports.updateAppointment = async (req, res, next) => {
     }
     res.json(appointment);
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.deleteAppointment = async (req, res, next) => {
+exports.deleteAppointment = async (req, res) => {
   try {
-    const { id } = req.params;
-    await appointmentService.deleteAppointment(id);
+    const userId = req.user.id;
+    const { appointmentId } = req.params;
+    await appointmentService.deleteAppointment(userId, appointmentId);
     res.status(204).end();
   } catch (error) {
-    next(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
