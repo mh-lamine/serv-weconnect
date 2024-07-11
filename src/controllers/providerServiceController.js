@@ -1,57 +1,43 @@
 const providerServiceService = require("../services/providerServiceService");
-const Joi = require("joi");
 
-const providerServiceSchema = Joi.object({
-  name: Joi.string().required(),
-  price: Joi.number().required(),
-  duration: Joi.number().required(),
-  description: Joi.string(),
-  providerId: Joi.string().required(),
-  providerCategoryId: Joi.string().required(),
-});
-
-exports.createProviderService = async (req, res, next) => {
+exports.createProviderService = async (req, res) => {
   try {
-    const { error } = providerServiceSchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
+    const providerId = req.user.id;
     const providerService = await providerServiceService.createProviderService(
+      providerId,
       req.body
     );
-    res.status(201).json(providerService);
+    return res.status(201).json(providerService);
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.updateProviderService = async (req, res, next) => {
+exports.updateProviderService = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { error } = providerServiceSchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
+    const providerId = req.user.id;
+    const { serviceId } = req.params;
     const providerService = await providerServiceService.updateProviderService(
-      id,
+      providerId,
+      serviceId,
       req.body
     );
-    if (!providerService)
-      return res.status(404).json({ message: "Provider not found" });
-    res.status(200).json(providerService);
+    return res.status(200).json(providerService);
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.deleteProviderService = async (req, res, next) => {
+exports.deleteProviderService = async (req, res) => {
   try {
-    const { id } = req.params;
+    const providerId = req.user.id;
+    const { serviceId } = req.params;
     const providerService = await providerServiceService.deleteProviderService(
-      id
+      providerId,
+      serviceId
     );
-    if (!providerService)
-      return res.status(404).json({ message: "Provider not found" });
-    res.status(204).end();
+    return res.status(204).end();
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };

@@ -7,9 +7,9 @@ exports.createAvailability = async (req, res) => {
       id,
       req.body
     );
-    res.status(201).json(availability);
+    return res.status(201).json(availability);
   } catch (error) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
@@ -22,11 +22,9 @@ exports.getAvailableTimeSlots = async (req, res) => {
       date,
       serviceDuration
     );
-    if (!availability)
-      return res.status(404).json({ message: "No availability found" });
-    res.json(availability);
+    return res.json(availability);
   } catch (error) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
@@ -36,7 +34,7 @@ exports.getDailyAvailabilities = async (req, res) => {
     const availabilities = await availabilityService.getDailyAvailabilities(id);
     res.json(availabilities);
   } catch (error) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
@@ -51,7 +49,7 @@ exports.updateAvailability = async (req, res) => {
     );
     res.json(availability);
   } catch (error) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
@@ -60,8 +58,8 @@ exports.deleteAvailability = async (req, res) => {
     const providerId = req.user.id;
     const { availabilityId } = req.params;
     await availabilityService.deleteAvailability(providerId, availabilityId);
-    res.status(204).end();
+    return res.status(204).end();
   } catch (error) {
-    res.status(error.statusCode || 500).json({ message: error.message });
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };

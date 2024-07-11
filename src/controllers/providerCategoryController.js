@@ -1,63 +1,56 @@
 const providerCategoryService = require("../services/providerCategoryService");
-const Joi = require("joi");
 
-const providerCategorySchema = Joi.object({
-  name: Joi.string().required(),
-  providerId: Joi.string().required(),
-});
-
-exports.createProviderCategory = async (req, res, next) => {
+exports.createProviderCategory = async (req, res) => {
   try {
-    const { error } = providerCategorySchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
-
+    const providerId = req.user.id;
     const providerCategory =
-      await providerCategoryService.createProviderCategory(req.body);
-    res.status(201).json(providerCategory);
+      await providerCategoryService.createProviderCategory(
+        providerId,
+        req.body
+      );
+    return res.status(201).json(providerCategory);
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.getProviderCategories = async (req, res, next) => {
+exports.getProviderCategories = async (req, res) => {
   try {
     const { id } = req.params;
     const providerCategories =
       await providerCategoryService.getProviderCategories(id);
-    if (!providerCategories)
-      return res.status(404).json({ message: "Provider not found" });
-    res.status(200).json(providerCategories);
+    return res.status(200).json(providerCategories);
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.updateProviderCategory = async (req, res, next) => {
+exports.updateProviderCategory = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { error } = providerCategorySchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
+    const providerId = req.user.id;
+    const { categoryId } = req.params;
     const providerCategory =
-      await providerCategoryService.updateProviderCategory(id, req.body);
-    if (!providerCategory)
-      return res.status(404).json({ message: "Provider not found" });
-    res.status(200).json(providerCategory);
+      await providerCategoryService.updateProviderCategory(
+        providerId,
+        categoryId,
+        req.body
+      );
+    return res.status(200).json(providerCategory);
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.deleteProviderCategory = async (req, res, next) => {
+exports.deleteProviderCategory = async (req, res) => {
   try {
-    const { id } = req.params;
-    const providerCategory =
-      await providerCategoryService.deleteProviderCategory(id);
-    if (!providerCategory)
-      return res.status(404).json({ message: "Provider not found" });
-    res.status(204).end();
+    const providerId = req.user.id;
+    const { categoryId } = req.params;
+    await providerCategoryService.deleteProviderCategory(
+      providerId,
+      categoryId
+    );
+    return res.status(204).end();
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };

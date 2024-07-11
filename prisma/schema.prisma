@@ -28,8 +28,7 @@ model User {
   appointmentsAsClient   Appointment[]     @relation("client")
   providerCategories     ProviderCategory[]
   providerServices       ProviderService[]
-  reviewsAsProvider      Review[]          @relation("provider")
-  reviewsAsClient        Review[]          @relation("client")
+  reviews        Review[]
   availabilities         Availability[]
   tags                   Tags[]
 }
@@ -87,6 +86,7 @@ model ProviderService {
   provider          User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
   providerCategory  ProviderCategory @relation(fields: [providerCategoryId], references: [id], onDelete: Cascade)
   appointments      Appointment[]
+  reviews           Review[]
 }
 
 model Review {
@@ -94,10 +94,10 @@ model Review {
   rating    Float
   comment   String?
   createdAt DateTime @default(now())
-  providerId String
-  clientId   String?
-  provider   User  @relation("provider", fields: [providerId], references: [id], onDelete: Cascade)
-  client     User ?  @relation("client", fields: [clientId], references: [id], onDelete: SetNull)
+  clientId   String
+  providerServiceId   String
+  client     User  @relation( fields: [clientId], references: [id], onDelete: Cascade)
+  providerService     ProviderService  @relation( fields: [providerServiceId], references: [id], onDelete: Cascade)
 }
 
 enum AppointmentStatus {

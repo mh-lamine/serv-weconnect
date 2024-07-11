@@ -1,8 +1,10 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.createProviderCategory = async (data) => {
-  return await prisma.providerCategory.create({ data });
+exports.createProviderCategory = async (providerId, data) => {
+  return await prisma.providerCategory.create({ 
+    data: { ...data, providerId },
+   });
 };
 
 exports.getProviderCategories = async (id) => {
@@ -12,15 +14,15 @@ exports.getProviderCategories = async (id) => {
   });
 };
 
-exports.updateProviderCategory = async (id, data) => {
+exports.updateProviderCategory = async (providerId, categoryId, data) => {
   return await prisma.providerCategory.update({
-    where: { id },
+    where: { id: categoryId, providerId },
     data,
   });
-}
+};
 
-exports.deleteProviderCategory = async (id) => {
+exports.deleteProviderCategory = async (providerId, categoryId) => {
   return await prisma.providerCategory.delete({
-    where: { id },
+    where: { id: categoryId, providerId },
   });
 };
