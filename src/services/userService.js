@@ -42,7 +42,12 @@ exports.getProvidersByFilters = async (filters) => {
     },
   };
 
-  return await prisma.user.findMany(query);
+  const providers = await prisma.user.findMany(query);
+  console.log("providersssssss", providers, "query", query);
+  if (!providers) {
+    throw new Error("No providers found");
+  }
+  return providers ? providers : "No providers found";
 };
 
 exports.getUserById = async (id) => {
