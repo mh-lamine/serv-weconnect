@@ -23,6 +23,7 @@ model User {
   providerName           String?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
+  refreshToken           RefreshToken?
 
   appointmentsAsProvider Appointment[]     @relation("provider")
   appointmentsAsClient   Appointment[]     @relation("client")
@@ -98,6 +99,14 @@ model Review {
   providerServiceId   String
   client     User  @relation( fields: [clientId], references: [id], onDelete: Cascade)
   providerService     ProviderService  @relation( fields: [providerServiceId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id        String  @id @default(cuid())
+  token     String?  @unique
+  createdAt DateTime @default(now())
+  userId    String   @unique
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum AppointmentStatus {

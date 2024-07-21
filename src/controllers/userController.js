@@ -1,33 +1,4 @@
 const userService = require("../services/userService");
-const jwt = require("../utils/middleware");
-
-exports.registerUser = async (req, res) => {
-  try {
-    const user = await userService.registerUser(req.body);
-    return res.json({
-      ...user,
-      token: jwt.generateToken(user.id),
-    });
-  } catch (error) {
-    return res.status(error.statusCode || 500).json({ message: error.message });
-  }
-};
-
-exports.loginUser = async (req, res) => {
-  try {
-    const { phoneNumber, password } = req.body;
-    if (!phoneNumber || !password) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-    const user = await userService.loginUser(phoneNumber, password);
-    return res.json({
-      ...user,
-      token: jwt.generateToken(user.id),
-    });
-  } catch (error) {
-    return res.status(error.statusCode || 500).json({ message: error.message });
-  }
-};
 
 exports.getUser = async (req, res) => {
   try {
