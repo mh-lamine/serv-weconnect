@@ -22,8 +22,9 @@ exports.loginUser = async (req, res) => {
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        sameSite: 'None',
-        secure: true,
+        sameSite: "None",
+        //FIXME: set secure to true in production
+        secure: false,
         maxAge: 1000 * 60 * 60 * 24,
       })
       .json({ accessToken });
@@ -56,7 +57,7 @@ exports.logout = async (req, res) => {
     return res
       .clearCookie("refreshToken", {
         httpOnly: true,
-        sameSite: 'None',
+        sameSite: "None",
         secure: true,
       })
       .json({ message: "Logged out" });
