@@ -7,14 +7,19 @@ const {
 } = require("../utils/businessLogic");
 
 exports.createAvailability = async (id, data) => {
-  if (id !== data.providerId) throw new Error("Unauthorized");
   try {
-    await prisma.availability.create({ data });
+    await prisma.availability.create({
+      data: {
+        ...data,
+        providerId: id,
+      },
+    });
     return "Availability created successfully";
   } catch (error) {
-    return error.message
+    return error.message;
   }
 };
+
 
 exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   const dateTime = DateTime.fromISO(date).setLocale("en");
