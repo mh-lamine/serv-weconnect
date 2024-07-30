@@ -11,7 +11,6 @@ exports.verifyToken = (req, res, next) => {
 
   try {
     // Verify the token
-    console.log(token);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) return res.status(403).json({ message: "Invalid token" });
 
@@ -25,9 +24,9 @@ exports.verifyToken = (req, res, next) => {
 };
 
 exports.credentials = (req, res, next) => {
-  const origin = req.headers.origin;
+  const origin = req.headers.origin; 
   if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Origin", true);
   }
   next();
 };

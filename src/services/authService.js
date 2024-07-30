@@ -50,16 +50,12 @@ exports.loginUser = async (phoneNumber, password) => {
   const accessToken = jwt.sign(
     { id: user.id },
     process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "2m",
-    }
+    { expiresIn: "2m" }
   );
   const refreshToken = jwt.sign(
     { id: user.id },
     process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "1d",
-    }
+    { expiresIn: "1d" }
   );
 
   // update refresh token in database
@@ -86,9 +82,7 @@ exports.refreshToken = async (refreshToken) => {
       const accessToken = jwt.sign(
         { id: user.id },
         process.env.ACCESS_TOKEN_SECRET,
-        {
-          expiresIn: "2m",
-        }
+        { expiresIn: "2m" }
       );
       return accessToken;
     }

@@ -1,7 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-
 exports.getUser = async (id) => {
   return await prisma.user.findUnique({
     where: { id },
@@ -13,11 +12,12 @@ exports.getUser = async (id) => {
 };
 
 exports.getProvidersByFilters = async (filters) => {
-  const { tags, dayOfWeek, startTime, endTime } = filters;
+  const { id, tags, dayOfWeek, startTime, endTime } = filters;
 
   const query = {
     where: {
       isProvider: true,
+      ...(id && { id }),
       ...(tags && {
         tags: {
           some: {
