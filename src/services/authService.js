@@ -9,7 +9,9 @@ exports.registerUser = async (data) => {
     where: { email: data.email, phoneNumber: data.phoneNumber },
   });
   if (userExists) {
-    throw new Error("User already exists");
+    const error = new Error("User already exists");
+    error.statusCode = 409;
+    throw error;
   }
 
   // Hash password
@@ -36,14 +38,18 @@ exports.loginUser = async (phoneNumber, password) => {
   });
 
   if (!user) {
-    throw new Error("invalid credentials");
+    const error = new Error("Invalid credentials");
+    error.statusCode = 401;
+    throw error;
   }
 
   // Compare passwords
   const validPassword = await bcrypt.compare(password, user.password);
 
   if (!validPassword) {
-    throw new Error("Invalid credentials");
+    const error = new Error("Invalid credentials");
+    error.statusCode = 401;
+    throw error;
   }
 
   // Generate tokens
