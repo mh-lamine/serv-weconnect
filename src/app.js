@@ -15,12 +15,13 @@ const tagsRoutes = require("./routes/tagsRoutes");
 const { credentials } = require("./utils/middleware");
 
 const app = express();
-app.use(credentials);
-app.use(cors(corsOptions));
+
 app.use(morgan("dev"));
 app.use(helmet());
-app.use(express.json());
 app.use(cookieParser());
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(credentials);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);

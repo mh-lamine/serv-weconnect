@@ -70,7 +70,7 @@ exports.loginUser = async (phoneNumber, password) => {
     data: { token: refreshToken },
   });
 
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken, isProvider: user.isProvider };
 };
 
 exports.refreshToken = async (refreshToken) => {
