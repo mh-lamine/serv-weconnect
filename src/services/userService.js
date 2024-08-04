@@ -1,16 +1,23 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.createUser = async (data) => {
-  return await prisma.user.create({ data });
+exports.getUser = async (id) => {
+  return await prisma.user.findUnique({
+    where: { id },
+    include: {
+      providerCategories: true,
+      availabilities: true,
+    },
+  });
 };
 
 exports.getProvidersByFilters = async (filters) => {
-  const { tags, dayOfWeek, startTime, endTime } = filters;
+  const { id, tags, dayOfWeek, startTime, endTime } = filters;
 
   const query = {
     where: {
       isProvider: true,
+      ...(id && { id }),
       ...(tags && {
         tags: {
           some: {
@@ -43,16 +50,6 @@ exports.getProvidersByFilters = async (filters) => {
   };
 
   return await prisma.user.findMany(query);
-};
-
-exports.getUserById = async (id) => {
-  return await prisma.user.findUnique({
-    where: { id },
-    include: {
-      providerCategories: true,
-      availabilities: true,
-    },
-  });
 };
 
 exports.updateUser = async (id, data) => {

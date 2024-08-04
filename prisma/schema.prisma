@@ -9,11 +9,11 @@ datasource db {
 }
 
 model User {
-  id                     String   @id
+  id                     String   @id @default(cuid())
   email                  String?   @unique
   password               String
   phoneNumber            String   @unique
-  address                String
+  address                String?
   isProvider             Boolean  @default(false)
   hasActiveSubscription  Boolean  @default(false)
   isInVacancyMode        Boolean  @default(false)
@@ -23,13 +23,13 @@ model User {
   providerName           String?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
+  refreshToken           RefreshToken?
 
   appointmentsAsProvider Appointment[]     @relation("provider")
   appointmentsAsClient   Appointment[]     @relation("client")
   providerCategories     ProviderCategory[]
   providerServices       ProviderService[]
-  reviewsAsProvider      Review[]          @relation("provider")
-  reviewsAsClient        Review[]          @relation("client")
+  reviews        Review[]
   availabilities         Availability[]
   tags                   Tags[]
 }
@@ -87,6 +87,7 @@ model ProviderService {
   provider          User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
   providerCategory  ProviderCategory @relation(fields: [providerCategoryId], references: [id], onDelete: Cascade)
   appointments      Appointment[]
+  reviews           Review[]
 }
 
 model Review {
@@ -94,10 +95,18 @@ model Review {
   rating    Float
   comment   String?
   createdAt DateTime @default(now())
-  providerId String
-  clientId   String?
-  provider   User  @relation("provider", fields: [providerId], references: [id], onDelete: Cascade)
-  client     User ?  @relation("client", fields: [clientId], references: [id], onDelete: SetNull)
+  clientId   String
+  providerServiceId   String
+  client     User  @relation( fields: [clientId], references: [id], onDelete: Cascade)
+  providerService     ProviderService  @relation( fields: [providerServiceId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id        String  @id @default(cuid())
+  token     String?  @unique
+  createdAt DateTime @default(now())
+  userId    String   @unique
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum AppointmentStatus {

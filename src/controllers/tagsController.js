@@ -1,52 +1,51 @@
 const tagsService = require("../services/tagsService");
-const Joi = require("joi");
 
-const tagsSchema = Joi.object({
-  name: Joi.string().required(),
-});
-
-exports.createTag = async (req, res, next) => {
+exports.createTag = async (req, res) => {
   try {
-    const { error } = tagsSchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
+    const adminId = req.user.id;
+    if (adminId !== PROCESS.ENV.ADMIN_ID) {
+      return res.status(403).json({ message: "Unauthorized, admin only" });
+    }
     const tag = await tagsService.createTag(req.body);
-    res.status(201).json(tag);
+    return res.status(201).json(tag);
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.getTags = async (req, res, next) => {
+exports.getTags = async (req, res) => {
   try {
     const tags = await tagsService.getTags();
-    res.json(tags);
+    return res.json(tags);
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.updateTag = async (req, res, next) => {
+exports.updateTag = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { error } = tagsSchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
-    const tag = await tagsService.updateTag(id, req.body);
-    if (!tag) return res.status(404).json({ message: "Tag not found" });
-    res.json(tag);
+    const adminId = req.user.id;
+    if (adminId !== PROCESS.ENV.ADMIN_ID) {
+      return res.status(403).json({ message: "Unauthorized, admin only" });
+    }
+    const { tagId } = req.params;
+    const tag = await tagsService.updateTag(tagId, req.body);
+    return res.json(tag);
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.deleteTag = async (req, res, next) => {
+exports.deleteTag = async (req, res) => {
   try {
-    const { id } = req.params;
-    const tag = await tagsService.deleteTag(id);
-    if (!tag) return res.status(404).json({ message: "Tag not found" });
-    res.json(tag);
+    const adminId = req.user.id;
+    if (adminId !== PROCESS.ENV.ADMIN_ID) {
+      return res.status(403).json({ message: "Unauthorized, admin only" });
+    }
+    const { tagId } = req.params;
+    const tag = await tagsService.deleteTag(tagId);
+    return res.json(tag);
   } catch (error) {
-    next(error);
+    return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };

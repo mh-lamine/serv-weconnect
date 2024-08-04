@@ -1,13 +1,27 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { DateTime } = require("luxon");
-const { generateAvailableRanges, generateTimeSlots } = require("../businessLogic");
+const {
+  generateAvailableRanges,
+  generateTimeSlots,
+} = require("../utils/businessLogic");
 
-exports.createAvailability = async (data) => {
-  return await prisma.availability.create({ data });
+exports.createAvailability = async (id, data) => {
+  try {
+    await prisma.availability.create({
+      data: {
+        ...data,
+        providerId: id,
+      },
+    });
+    return "Availability created successfully";
+  } catch (error) {
+    return error.message;
+  }
 };
 
-exports.getProviderAvailabilities = async (id, date, serviceDuration) => {
+
+exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   const dateTime = DateTime.fromISO(date).setLocale("en");
   const dayOfWeek = dateTime.weekdayLong.toUpperCase();
 
@@ -29,10 +43,7 @@ exports.getProviderAvailabilities = async (id, date, serviceDuration) => {
 
   let availableSlots = [];
   availabilities.forEach((availability) => {
-    const availableRanges = generateAvailableRanges(
-      availability,
-      appointments
-    );
+    const availableRanges = generateAvailableRanges(availability, appointments);
     availableRanges.forEach((range) => {
       availableSlots = availableSlots.concat(
         generateTimeSlots(range.start, range.end, serviceDuration, date)
@@ -43,10 +54,35 @@ exports.getProviderAvailabilities = async (id, date, serviceDuration) => {
   return availableSlots;
 };
 
-exports.updateAvailability = async (id, data) => {
-  return await prisma.availability.update({ where: { id }, data });
+exports.getDailyAvailabilities = async (id) => {
+  return await prisma.availability.findMany({
+    where: { providerId: id },
+  });
 };
 
-exports.deleteAvailability = async (id) => {
-  return await prisma.availability.delete({ where: { id } });
+exports.updateAvailability = async (providerId, availabilityId, data) => {
+  try {
+    await prisma.availability.update({
+      where: {
+        id: availabilityId,
+        providerId,
+      },
+      data,
+    });
+  } catch (error) {
+    throw new Error("Unauthorized");
+  }
+};
+
+exports.deleteAvailability = async (providerId, availabilityId) => {
+  try {
+    await prisma.availability.delete({
+      where: {
+        id: availabilityId,
+        providerId,
+      },
+    });
+  } catch (error) {
+    throw new Error("Unauthorized");
+  }
 };
