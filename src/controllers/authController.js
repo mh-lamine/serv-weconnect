@@ -24,7 +24,7 @@ exports.loginUser = async (req, res) => {
         httpOnly: true,
         //FIXME: set secure to true and sameSite in production
         sameSite: "None",
-        secure: false,
+        secure: true,
         maxAge: 1000 * 60 * 60 * 24,
       })
       .json({ accessToken, isProvider });
