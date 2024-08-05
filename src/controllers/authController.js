@@ -36,6 +36,7 @@ exports.loginUser = async (req, res) => {
 exports.refreshToken = async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.refreshToken) {
+    console.log("no refresh token");
     return res.sendStatus(401);
   }
   const refreshToken = cookies.refreshToken;
