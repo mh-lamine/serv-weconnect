@@ -23,7 +23,7 @@ exports.loginUser = async (req, res) => {
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         //FIXME: set secure to true and sameSite in production
-        // sameSite: "None",
+        sameSite: "None",
         secure: false,
         maxAge: 1000 * 60 * 60 * 24,
       })
