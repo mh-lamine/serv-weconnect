@@ -74,25 +74,27 @@ exports.loginUser = async (phoneNumber, password) => {
 };
 
 exports.refreshToken = async (refreshToken) => {
-  const user = await prisma.refreshToken.findFirst({
+  const userToken = await prisma.refreshToken.findFirst({
     where: { token: refreshToken },
   });
-  if (!user) return res.sendStatus(403);
+  if (!userToken) return res.sendStatus(403);
+
+  const user = await prisma.user.findFirst({
+    where: { id: userToken.userId },
+  });
 
   // Verify token
-  return jwt.verify(
+  const accessToken = jwt.verify(
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET,
-    (err, user) => {
+    (err, userToken) => {
       if (err) return res.status(403);
-      const accessToken = jwt.sign(
-        { id: user.id },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "30m" }
-      );
-      return accessToken;
+      return jwt.sign({ id: userToken.id }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "30m",
+      });
     }
   );
+  return { accessToken, isProvider: user.isProvider };
 };
 
 exports.logout = async (refreshToken) => {

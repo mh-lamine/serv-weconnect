@@ -22,7 +22,6 @@ exports.loginUser = async (req, res) => {
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        //FIXME: set secure to true and sameSite in production
         sameSite: "None",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
@@ -36,13 +35,12 @@ exports.loginUser = async (req, res) => {
 exports.refreshToken = async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.refreshToken) {
-    console.log("no refresh token");
     return res.sendStatus(401);
   }
   const refreshToken = cookies.refreshToken;
   try {
-    const accessToken = await authService.refreshToken(refreshToken);
-    return res.json({ accessToken });
+    const {accessToken, isProvider} = await authService.refreshToken(refreshToken);
+    return res.json({ accessToken, isProvider });
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
