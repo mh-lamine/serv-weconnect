@@ -45,6 +45,7 @@ exports.getProvidersByFilters = async (filters) => {
     },
     include: {
       providerCategories: true,
+      providerServices: true,
       availabilities: true,
     },
   };
