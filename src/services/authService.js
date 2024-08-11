@@ -23,12 +23,24 @@ exports.registerUser = async (data) => {
     data: { ...data, password: hashedPassword },
   });
 
-  // Create empty refresh token
+  // Generate tokens
+  const accessToken = jwt.sign(
+    { id: newUser.id },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "30m" }
+  );
+  const refreshToken = jwt.sign(
+    { id: newUser.id },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  // create refresh token in database
   await prisma.refreshToken.create({
-    data: { userId: newUser.id },
+    data: { token: refreshToken, userId: newUser.id },
   });
 
-  return newUser;
+  return { accessToken, refreshToken, isProvider: newUser.isProvider };
 };
 
 exports.loginUser = async (phoneNumber, password) => {

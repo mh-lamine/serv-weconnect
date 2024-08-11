@@ -2,8 +2,16 @@ const authService = require("../services/authService");
 
 exports.registerUser = async (req, res) => {
   try {
-    const user = await authService.registerUser(req.body);
-    return res.json(user);
+    const { accessToken, refreshToken, isProvider } =
+      await authService.registerUser(req.body);
+    return res
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        sameSite: "None",
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 24,
+      })
+      .json({ accessToken, isProvider });
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
@@ -15,10 +23,8 @@ exports.loginUser = async (req, res) => {
     if (!phoneNumber || !password) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-    const { accessToken, refreshToken, isProvider } = await authService.loginUser(
-      phoneNumber,
-      password
-    );
+    const { accessToken, refreshToken, isProvider } =
+      await authService.loginUser(phoneNumber, password);
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -39,7 +45,9 @@ exports.refreshToken = async (req, res) => {
   }
   const refreshToken = cookies.refreshToken;
   try {
-    const {accessToken, isProvider} = await authService.refreshToken(refreshToken);
+    const { accessToken, isProvider } = await authService.refreshToken(
+      refreshToken
+    );
     return res.json({ accessToken, isProvider });
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
