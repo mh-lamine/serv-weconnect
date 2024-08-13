@@ -1,6 +1,4 @@
 const express = require("express");
-const cors = require("cors");
-const corsOptions = require("./config/corsOptions");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
@@ -12,7 +10,6 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const providerCategoryRoutes = require("./routes/providerCategoryRoutes");
 const providerServiceRoutes = require("./routes/providerServiceRoutes");
 const tagsRoutes = require("./routes/tagsRoutes");
-const { credentials } = require("./utils/middleware");
 
 const app = express();
 app.use(express.static("dist"));
@@ -20,9 +17,7 @@ app.use(express.static("dist"));
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(cookieParser());
-// app.use(cors(corsOptions));
 app.use(express.json());
-// app.use(credentials);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
