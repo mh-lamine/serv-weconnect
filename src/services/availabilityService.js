@@ -42,6 +42,9 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   });
 
   let availableSlots = [];
+  availabilities.sort((a, b) => {
+    return a.startTime.localeCompare(b.startTime);
+  });
   availabilities.forEach((availability) => {
     const availableRanges = generateAvailableRanges(availability, appointments);
     availableRanges.forEach((range) => {

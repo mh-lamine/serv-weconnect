@@ -19,6 +19,14 @@ exports.generateAvailableRanges = (availability, appointments) => {
       })
       .toISOTime();
 
+    const isAppointmentInAvailabilityRange =
+      appointmentStartTime >= availabilityStartTime &&
+      appointmentEndTime <= availabilityEndTime;
+
+    if (!isAppointmentInAvailabilityRange) {
+      return;
+    }
+
     if (appointmentStartTime > availabilityStartTime) {
       availableRanges.push({
         start: availabilityStartTime,

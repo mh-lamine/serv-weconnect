@@ -2,29 +2,14 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.createAppointment = async (data, userId) => {
-  const { date, providerId, clientId } = data;
-
-  // Authorization check: Ensure userId matches providerId or implement your own logic
-  if (userId !== providerId || userId !== clientId) {
+  if (!userId) {
     const error = new Error("Unauthorized to create appointment");
     error.statusCode = 403; // Forbidden
     throw error;
   }
-
-  const existingAppointment = await prisma.appointment.findFirst({
-    where: {
-      date,
-      OR: [{ clientId: userId }, { providerId: userId }],
-    },
+  return await prisma.appointment.create({
+    data: { ...data, clientId: userId },
   });
-
-  if (existingAppointment) {
-    const error = new Error("Time slot already booked");
-    error.statusCode = 409; // Conflict
-    throw error;
-  }
-
-  return await prisma.appointment.create({ data });
 };
 
 exports.getAppointmentsAsClient = async (id) => {

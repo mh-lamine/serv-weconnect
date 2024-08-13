@@ -7,7 +7,7 @@ exports.registerUser = async (req, res) => {
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        sameSite: "None",
+        sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
       })
@@ -28,7 +28,7 @@ exports.loginUser = async (req, res) => {
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        sameSite: "None",
+        sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
       })
@@ -57,14 +57,14 @@ exports.refreshToken = async (req, res) => {
 exports.logout = async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.refreshToken) return res.sendStatus(204);
-  const refreshToken = cookies.refreshToken;
+    const refreshToken = cookies.refreshToken;
 
   try {
     await authService.logout(refreshToken);
     return res
       .clearCookie("refreshToken", {
         httpOnly: true,
-        sameSite: "None",
+        sameSite: "Lax",
         secure: true,
       })
       .json({ message: "Logged out" });
