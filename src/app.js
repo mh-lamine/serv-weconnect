@@ -12,7 +12,7 @@ const providerServiceRoutes = require("./routes/providerServiceRoutes");
 const tagsRoutes = require("./routes/tagsRoutes");
 
 const app = express();
-app.use(express.static("dist"));
+const path = require("path");
 
 app.use(morgan("dev"));
 app.use(helmet());
@@ -27,5 +27,13 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/providerCategory", providerCategoryRoutes);
 app.use("/api/providerService", providerServiceRoutes);
 app.use("/api/tags", tagsRoutes);
+
+// Servez les fichiers statiques du répertoire 'dist'
+app.use(express.static(path.join(__dirname, "..", "dist")));
+
+// Route de repli pour toutes les autres requêtes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
+});
 
 module.exports = app;
