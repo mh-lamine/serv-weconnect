@@ -1,0 +1,1 @@
+import{a,j as s,B as t}from"./index-CIDtUT5E.js";const n=()=>{const e=a();return s.jsxs("main",{className:"w-full max-w-screen-md mx-auto p-6 flex flex-1 flex-col space-y-4",children:[s.jsx(t,{variant:"link",className:"justify-start h-0 p-0",onClick:()=>e(-1),children:"Retour"}),s.jsx("h1",{className:"text-3xl font-semibold",children:"Mes prestations"})]})};export{n as default};
