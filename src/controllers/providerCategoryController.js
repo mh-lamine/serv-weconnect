@@ -15,8 +15,15 @@ exports.createProviderCategory = async (req, res) => {
 };
 
 exports.getProviderCategories = async (req, res) => {
+  let id;
+
+  if (req.params.id === "me") {
+    id = req.user.id;
+  } else {
+    id = req.params.id;
+  }
+
   try {
-    const { id } = req.params;
     const providerCategories =
       await providerCategoryService.getProviderCategories(id);
     return res.status(200).json(providerCategories);

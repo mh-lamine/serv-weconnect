@@ -8,7 +8,7 @@ router.post(
   jwt.verifyToken,
   providerCategoryController.createProviderCategory
 );
-router.get("/:id", providerCategoryController.getProviderCategories);
+router.get("/:id", jwt.verifyToken, providerCategoryController.getProviderCategories);
 router.put(
   "/:categoryId",
   jwt.verifyToken,

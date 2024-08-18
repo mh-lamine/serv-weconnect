@@ -23,7 +23,7 @@ exports.loginUser = async (req, res) => {
     if (!phoneNumber || !password) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-    const { accessToken, refreshToken, isProvider } =
+    const { user, accessToken, refreshToken } =
       await authService.loginUser(phoneNumber, password);
     return res
       .cookie("refreshToken", refreshToken, {
@@ -32,7 +32,7 @@ exports.loginUser = async (req, res) => {
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
       })
-      .json({ accessToken, isProvider });
+      .json({ ...user, accessToken });
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
