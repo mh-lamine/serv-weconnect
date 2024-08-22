@@ -5,6 +5,6 @@ const jwt = require("../utils/middleware");
 
 router.post("/", jwt.verifyToken, providerServiceController.createProviderService);
 router.put("/:serviceId", jwt.verifyToken, providerServiceController.updateProviderService);
-router.delete("/:serviceId", jwt.verifyToken, providerServiceController.deleteProviderService);
+// router.delete("/:serviceId", jwt.verifyToken, providerServiceController.deleteProviderService);
 
 module.exports = router;

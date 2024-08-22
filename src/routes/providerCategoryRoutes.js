@@ -8,16 +8,20 @@ router.post(
   jwt.verifyToken,
   providerCategoryController.createProviderCategory
 );
-router.get("/:id", jwt.verifyToken, providerCategoryController.getProviderCategories);
+router.get(
+  "/:id",
+  jwt.verifyToken,
+  providerCategoryController.getProviderCategories
+);
 router.put(
   "/:categoryId",
   jwt.verifyToken,
   providerCategoryController.updateProviderCategory
 );
-router.delete(
-  "/:categoryId",
-  jwt.verifyToken,
-  providerCategoryController.deleteProviderCategory
-);
+// router.delete(
+//   "/:categoryId",
+//   jwt.verifyToken,
+//   providerCategoryController.deleteProviderCategory
+// );
 
 module.exports = router;

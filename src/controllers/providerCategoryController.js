@@ -15,17 +15,17 @@ exports.createProviderCategory = async (req, res) => {
 };
 
 exports.getProviderCategories = async (req, res) => {
-  let id;
-
-  if (req.params.id === "me") {
-    id = req.user.id;
-  } else {
-    id = req.params.id;
-  }
-
+  let providerCategories;
   try {
-    const providerCategories =
-      await providerCategoryService.getProviderCategories(id);
+    if (req.params.id === "me") {
+      providerCategories = await providerCategoryService.getProviderCategories(
+        req.user.id
+      );
+    } else {
+      providerCategories = await providerCategoryService.getActiveCategories(
+        req.params.id
+      );
+    }
     return res.status(200).json(providerCategories);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });

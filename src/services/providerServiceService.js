@@ -11,13 +11,34 @@ exports.createProviderService = async (providerId, data) => {
 };
 
 exports.updateProviderService = async (providerId, serviceId, data) => {
-  return await prisma.providerService.update({
+  const { isActive, providerCategoryId } = data;
+  await prisma.providerService.update({
     where: {
       id: serviceId,
       providerId,
     },
-    data,
+    data: {
+      isActive,
+    },
   });
+  const activeServices = await prisma.providerService.findMany({
+    where: {
+      providerId,
+      providerCategoryId,
+      isActive: true,
+    },
+  });
+  if (activeServices.length === 0) {
+    await prisma.providerCategory.update({
+      where: {
+        id: data.providerCategoryId,
+        providerId,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+  }
 };
 
 exports.deleteProviderService = async (providerId, serviceId) => {
