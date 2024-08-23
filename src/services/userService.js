@@ -45,9 +45,16 @@ exports.getProvidersByFilters = async (filters) => {
     },
     include: {
       providerCategories: {
-        include: {
-          services: true,
+        where: {
+          isActive: true,
         },
+          include: {
+            services: {
+              where: {
+                isActive: true,
+              },
+            },
+          },
       },
       availabilities: true,
     },
