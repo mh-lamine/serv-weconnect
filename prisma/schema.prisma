@@ -83,7 +83,7 @@ model ProviderService {
   price             Float
   duration          Int
   description       String?
-  isActive          Boolean  @default(false)
+  isActive          Boolean  @default(true)
   providerId        String
   providerCategoryId String
   provider          User   @relation(fields: [providerId], references: [id], onDelete: Cascade)

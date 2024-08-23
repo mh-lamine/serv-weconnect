@@ -26,6 +26,11 @@ exports.getActiveCategories = async (id) => {
 };
 
 exports.updateProviderCategory = async (providerId, categoryId, data) => {
+  data.isActive === true &&
+    (await prisma.providerService.updateMany({
+      where: { providerCategoryId: categoryId },
+      data: { isActive: true },
+    }));
   return await prisma.providerCategory.update({
     where: { id: categoryId, providerId },
     data,
