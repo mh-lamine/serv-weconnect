@@ -13,25 +13,63 @@ exports.createAppointment = async (data, userId) => {
 };
 
 exports.getAppointmentsAsClient = async (id) => {
-  const appointments = await prisma.appointment.findMany({
-    where: { clientId: id },
+  const futureAppointments = await prisma.appointment.findMany({
+    where: {
+      clientId: id,
+      status: {
+        in: ["PENDING", "ACCEPTED"],
+      },
+    },
     include: {
       provider: true,
       service: true,
     },
   });
-  return appointments;
+
+  const pastAppointments = await prisma.appointment.findMany({
+    where: {
+      clientId: id,
+      status: {
+        in: ["CANCELLED", "COMPLETED"],
+      },
+    },
+    include: {
+      provider: true,
+      service: true,
+    },
+  });
+
+  return { futureAppointments, pastAppointments };
 };
 
 exports.getAppointmentsAsProvider = async (id) => {
-  const appointments = await prisma.appointment.findMany({
-    where: { providerId: id },
+  const futureAppointments = await prisma.appointment.findMany({
+    where: {
+      providerId: id,
+      status: {
+        in: ["PENDING", "ACCEPTED"],
+      },
+    },
     include: {
       client: true,
       service: true,
     },
   });
-  return appointments;
+
+  const pastAppointments = await prisma.appointment.findMany({
+    where: {
+      providerId: id,
+      status: {
+        in: ["CANCELLED", "COMPLETED"],
+      },
+    },
+    include: {
+      client: true,
+      service: true,
+    },
+  });
+
+  return { futureAppointments, pastAppointments };
 };
 
 exports.updateAppointment = async (userId, appointmentId, data) => {

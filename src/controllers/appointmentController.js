@@ -18,7 +18,7 @@ exports.getAppointmentsAsClient = async (req, res) => {
   try {
     const { id } = req.user;
     const appointments = await appointmentService.getAppointmentsAsClient(id);
-    return res.json(appointments);
+    return res.status(201).json(appointments);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
@@ -28,7 +28,7 @@ exports.getAppointmentsAsProvider = async (req, res) => {
   try {
     const { id } = req.user;
     const appointments = await appointmentService.getAppointmentsAsProvider(id);
-    return res.json(appointments);
+    return res.status(201).json(appointments);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }

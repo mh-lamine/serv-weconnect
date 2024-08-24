@@ -20,7 +20,6 @@ exports.createAvailability = async (id, data) => {
   }
 };
 
-
 exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   const dateTime = DateTime.fromISO(date).setLocale("en");
   const dayOfWeek = dateTime.weekdayLong.toUpperCase();
@@ -34,6 +33,9 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
 
   const appointments = await prisma.appointment.findMany({
     where: {
+      status: {
+        in: ["PENDING", "ACCEPTED"],
+      },
       providerId: id,
       date: {
         startsWith: dateTime.toISODate(),
