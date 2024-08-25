@@ -1,5 +1,7 @@
+const { DateTime } = require("luxon");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const { updateAppointmentsStatuses } = require("../utils/businessLogic");
 
 exports.createAppointment = async (data, userId) => {
   if (!userId) {
@@ -13,12 +15,14 @@ exports.createAppointment = async (data, userId) => {
 };
 
 exports.getAppointmentsAsClient = async (id) => {
+  const now = DateTime.now().toISO();
   const futureAppointments = await prisma.appointment.findMany({
     where: {
       clientId: id,
       status: {
         in: ["PENDING", "ACCEPTED"],
       },
+      date: { gt: now },
     },
     include: {
       provider: true,
@@ -32,6 +36,7 @@ exports.getAppointmentsAsClient = async (id) => {
       status: {
         in: ["CANCELLED", "COMPLETED"],
       },
+      date: { lt: now },
     },
     include: {
       provider: true,
@@ -43,12 +48,17 @@ exports.getAppointmentsAsClient = async (id) => {
 };
 
 exports.getAppointmentsAsProvider = async (id) => {
+  const now = DateTime.now().toISO();
+
+  await updateAppointmentsStatuses(id);
+
   const futureAppointments = await prisma.appointment.findMany({
     where: {
       providerId: id,
       status: {
         in: ["PENDING", "ACCEPTED"],
       },
+      date: { gt: now },
     },
     include: {
       client: true,
@@ -56,11 +66,15 @@ exports.getAppointmentsAsProvider = async (id) => {
     },
   });
 
-  const pastAppointments = await prisma.appointment.findMany({
+  const today = DateTime.now().toISODate();
+  const todaysAppointments = await prisma.appointment.findMany({
     where: {
       providerId: id,
+      date: {
+        startsWith: today,
+      },
       status: {
-        in: ["CANCELLED", "COMPLETED"],
+        in: ["ACCEPTED", "COMPLETED"],
       },
     },
     include: {
@@ -69,7 +83,19 @@ exports.getAppointmentsAsProvider = async (id) => {
     },
   });
 
-  return { futureAppointments, pastAppointments };
+  const missedAppointments = await prisma.appointment.findMany({
+    where: {
+      providerId: id,
+      date: { lt: now },
+      status: "PENDING",
+    },
+    include: {
+      client: true,
+      service: true,
+    },
+  });
+
+  return { futureAppointments, todaysAppointments, missedAppointments };
 };
 
 exports.updateAppointment = async (userId, appointmentId, data) => {
