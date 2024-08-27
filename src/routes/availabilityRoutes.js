@@ -5,7 +5,7 @@ const jwt = require("../utils/middleware");
 
 router.post("/", jwt.verifyToken, availabilityController.createAvailability);
 router.post("/:id", availabilityController.getAvailableTimeSlots);
-router.get("/", jwt.verifyToken, availabilityController.getDailyAvailabilities);
+router.get("/", jwt.verifyToken, availabilityController.getAvailabilities);
 router.patch(
   "/:availabilityId",
   jwt.verifyToken,

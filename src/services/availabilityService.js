@@ -59,8 +59,8 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   return availableSlots;
 };
 
-exports.getDailyAvailabilities = async (id) => {
-  return await prisma.availability.findMany({
+exports.getAvailabilities = async (id) => {
+  const weeklyAvailabilities = await prisma.availability.findMany({
     where: { providerId: id },
   });
 };

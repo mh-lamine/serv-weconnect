@@ -28,10 +28,10 @@ exports.getAvailableTimeSlots = async (req, res) => {
   }
 };
 
-exports.getDailyAvailabilities = async (req, res) => {
+exports.getAvailabilities = async (req, res) => {
   try {
     const { id } = req.user;
-    const availabilities = await availabilityService.getDailyAvailabilities(id);
+    const availabilities = await availabilityService.getAvailabilities(id);
     res.json(availabilities);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
