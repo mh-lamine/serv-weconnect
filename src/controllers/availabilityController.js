@@ -13,6 +13,19 @@ exports.createAvailability = async (req, res) => {
   }
 };
 
+exports.createSpecialAvailability = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const availability = await availabilityService.createSpecialAvailability(
+      id,
+      req.body
+    );
+    return res.status(201).json(availability);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+}
+
 exports.getAvailableTimeSlots = async (req, res) => {
   try {
     const { id } = req.params;
@@ -63,3 +76,14 @@ exports.deleteAvailability = async (req, res) => {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
+exports.deleteSpecialAvailability = async (req, res) => { 
+  try {
+    const providerId = req.user.id;
+    const { availabilityId } = req.params;
+    await availabilityService.deleteSpecialAvailability(providerId, availabilityId);
+    return res.status(204).end();
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+}

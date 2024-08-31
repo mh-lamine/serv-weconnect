@@ -32,12 +32,23 @@ model User {
   providerServices       ProviderService[]
   reviews        Review[]
   availabilities         Availability[]
+  specialAvailabilities  SpecialAvailability[]
   tags                   Tags[]
 }
 
 model Availability {
   id        String    @id @default(cuid())
   dayOfWeek DayOfWeek
+  startTime String
+  endTime   String
+
+  providerId String
+  provider   User   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+}
+
+model SpecialAvailability {
+  id        String    @id @default(cuid())
+  date      String
   startTime String
   endTime   String
 

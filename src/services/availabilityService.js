@@ -20,6 +20,20 @@ exports.createAvailability = async (id, data) => {
   }
 };
 
+exports.createSpecialAvailability = async (id, data) => {
+  try {
+    await prisma.specialAvailability.create({
+      data: {
+        ...data,
+        providerId: id,
+      },
+    });
+    return "Special availability created successfully";
+  } catch (error) {
+    return error.message;
+  }
+}
+
 exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   const dateTime = DateTime.fromISO(date).setLocale("en");
   const dayOfWeek = dateTime.weekdayLong.toUpperCase();
@@ -60,9 +74,17 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
 };
 
 exports.getAvailabilities = async (id) => {
-  return await prisma.availability.findMany({
-    where: { providerId: id },
-  });
+  const [availabilities, specialAvailabilities] = await prisma.$transaction([
+    prisma.availability.findMany({
+      where: { providerId: id },
+    }),
+    prisma.specialAvailability.findMany({
+      where: { providerId: id },
+    }),
+  ]);
+
+  return { availabilities, specialAvailabilities };
+
 };
 
 exports.updateAvailability = async (providerId, availabilityId, data) => {
@@ -82,6 +104,19 @@ exports.updateAvailability = async (providerId, availabilityId, data) => {
 exports.deleteAvailability = async (providerId, availabilityId) => {
   try {
     await prisma.availability.delete({
+      where: {
+        id: availabilityId,
+        providerId,
+      },
+    });
+  } catch (error) {
+    throw new Error("Unauthorized");
+  }
+};
+
+exports.deleteSpecialAvailability = async (providerId, availabilityId) => {
+  try {
+    await prisma.specialAvailability.delete({
       where: {
         id: availabilityId,
         providerId,
