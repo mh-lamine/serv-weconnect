@@ -7,43 +7,113 @@ const {
 } = require("../utils/businessLogic");
 
 exports.createAvailability = async (id, data) => {
-  try {
-    await prisma.availability.create({
-      data: {
-        ...data,
-        providerId: id,
-      },
-    });
-    return "Availability created successfully";
-  } catch (error) {
-    return error.message;
+  const overlappingAvailability = await prisma.availability.findFirst({
+    where: {
+      providerId: id,
+      OR: [
+        {
+          startTime: {
+            lte: data.endTime,
+          },
+          endTime: {
+            gte: data.startTime,
+          },
+        },
+        {
+          startTime: {
+            gte: data.startTime,
+            lte: data.endTime,
+          },
+          endTime: {
+            gte: data.startTime,
+            lte: data.endTime,
+          },
+        },
+      ],
+    },
+  });
+
+  if (overlappingAvailability) {
+    const error = new Error("Unauthorized to create appointment");
+    error.statusCode = 401; // Unauthorized
+    throw error;
   }
+
+  await prisma.availability.create({
+    data: {
+      ...data,
+      providerId: id,
+    },
+  });
+
+  return "Disponibilité créée avec succès";
 };
 
 exports.createSpecialAvailability = async (id, data) => {
-  try {
-    await prisma.specialAvailability.create({
-      data: {
-        ...data,
+  const overlappingSpecialAvailability =
+    await prisma.specialAvailability.findFirst({
+      where: {
         providerId: id,
+        date: data.date,
+        OR: [
+          {
+            startTime: {
+              lte: data.endTime,
+            },
+            endTime: {
+              gte: data.startTime,
+            },
+          },
+          {
+            startTime: {
+              gte: data.startTime,
+              lte: data.endTime,
+            },
+            endTime: {
+              gte: data.startTime,
+              lte: data.endTime,
+            },
+          },
+        ],
       },
     });
-    return "Special availability created successfully";
-  } catch (error) {
-    return error.message;
+
+  if (overlappingSpecialAvailability) {
+    const error = new Error("Unauthorized to create appointment");
+    error.statusCode = 401; // Unauthorized
+    throw error;
   }
-}
+
+  await prisma.specialAvailability.create({
+    data: {
+      ...data,
+      providerId: id,
+    },
+  });
+
+  return "Disponibilité spéciale créée avec succès";
+};
 
 exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   const dateTime = DateTime.fromISO(date).setLocale("en");
   const dayOfWeek = dateTime.weekdayLong.toUpperCase();
 
-  const availabilities = await prisma.availability.findMany({
+  const specialDayAvailabilities = await prisma.specialAvailability.findMany({
     where: {
       providerId: id,
-      dayOfWeek,
+      date: dateTime.toISODate(),
     },
   });
+
+  const availabilities =
+    specialDayAvailabilities.length > 0
+      ? specialDayAvailabilities
+      : await prisma.availability.findMany({
+          where: {
+            providerId: id,
+            dayOfWeek,
+          },
+        });
 
   const appointments = await prisma.appointment.findMany({
     where: {
@@ -84,7 +154,6 @@ exports.getAvailabilities = async (id) => {
   ]);
 
   return { availabilities, specialAvailabilities };
-
 };
 
 exports.updateAvailability = async (providerId, availabilityId, data) => {

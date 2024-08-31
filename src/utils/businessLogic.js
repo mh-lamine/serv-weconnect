@@ -85,6 +85,10 @@ exports.generateTimeSlots = (
         minutes: serviceDuration,
       })
       .toISOTime();
+
+    if (currentSlotStart >= slotEnd) {
+      break;
+    }
   }
 
   return timeSlots;
