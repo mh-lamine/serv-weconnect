@@ -52,13 +52,18 @@ exports.getAppointmentsAsProvider = async (id) => {
 
   await updateAppointmentsStatuses(id);
 
+  const startOfDay = DateTime.local().startOf("day");
+  const endOfDay = startOfDay.plus({ days: 1 });
+
   const futureAppointments = await prisma.appointment.findMany({
     where: {
       providerId: id,
       status: {
         in: ["PENDING", "ACCEPTED"],
       },
-      date: { gt: now },
+      date: {
+        gte: endOfDay.toISO(), 
+      },
     },
     include: {
       client: true,
