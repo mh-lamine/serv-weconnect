@@ -10,6 +10,7 @@ exports.registerUser = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
+        domain: ".weconnect-rdv.fr",
       })
       .json({ accessToken, isProvider });
   } catch (error) {
@@ -23,14 +24,17 @@ exports.loginUser = async (req, res) => {
     if (!phoneNumber || !password) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-    const { user, accessToken, refreshToken } =
-      await authService.loginUser(phoneNumber, password);
+    const { user, accessToken, refreshToken } = await authService.loginUser(
+      phoneNumber,
+      password
+    );
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
+        domain: ".weconnect-rdv.fr",
       })
       .json({ ...user, accessToken });
   } catch (error) {
@@ -57,7 +61,7 @@ exports.refreshToken = async (req, res) => {
 exports.logout = async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.refreshToken) return res.sendStatus(204);
-    const refreshToken = cookies.refreshToken;
+  const refreshToken = cookies.refreshToken;
 
   try {
     await authService.logout(refreshToken);
@@ -66,6 +70,7 @@ exports.logout = async (req, res) => {
         httpOnly: true,
         sameSite: "Lax",
         secure: true,
+        domain: ".weconnect-rdv.fr",
       })
       .json({ message: "Logged out" });
   } catch (error) {
