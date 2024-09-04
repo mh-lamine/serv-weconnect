@@ -149,7 +149,12 @@ exports.getAvailabilities = async (id) => {
       where: { providerId: id },
     }),
     prisma.specialAvailability.findMany({
-      where: { providerId: id },
+      where: {
+        providerId: id,
+        date: {
+          gte: DateTime.now().toISODate(),
+        },
+      },
     }),
   ]);
 

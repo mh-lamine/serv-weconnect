@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcryptjs");
+const { DateTime } = require("luxon");
 
 exports.getUser = async (id) => {
   return await prisma.user.findUnique({
@@ -58,6 +59,13 @@ exports.getProvidersByFilters = async (filters) => {
         },
       },
       availabilities: true,
+      specialAvailabilities: {
+        where: {
+          date: {
+            gte: DateTime.now().toISODate(),
+          },
+        },
+      },
     },
   };
 
