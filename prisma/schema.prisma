@@ -15,6 +15,7 @@ model User {
   address                String?
   profilePicture         String?
   coverImage             String?
+  bookingTerms           String?
   isProvider             Boolean  @default(false)
   hasActiveSubscription  Boolean  @default(false)
   isInVacancyMode        Boolean  @default(false)
