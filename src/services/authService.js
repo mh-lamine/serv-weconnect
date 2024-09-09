@@ -41,7 +41,7 @@ exports.registerUser = async (data) => {
     data: { token: refreshToken, userId: newUser.id },
   });
 
-  return { accessToken, refreshToken, isProvider: newUser.isProvider };
+  return { accessToken, refreshToken, newUser };
 };
 
 exports.loginUser = async (phoneNumber, password) => {

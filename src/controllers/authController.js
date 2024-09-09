@@ -2,8 +2,9 @@ const authService = require("../services/authService");
 
 exports.registerUser = async (req, res) => {
   try {
-    const { accessToken, refreshToken, isProvider } =
-      await authService.registerUser(req.body);
+    const { newUser, accessToken, refreshToken } = await authService.registerUser(
+      req.body
+    );
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -12,7 +13,7 @@ exports.registerUser = async (req, res) => {
         maxAge: 1000 * 60 * 60 * 24,
         domain: ".weconnect-rdv.fr",
       })
-      .json({ accessToken, isProvider });
+      .json({ accessToken, ...newUser });
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
