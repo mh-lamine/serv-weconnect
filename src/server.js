@@ -28,6 +28,15 @@ app.use("/api/providerCategory", providerCategoryRoutes);
 app.use("/api/providerService", providerServiceRoutes);
 app.use("/api/tags", tagsRoutes);
 
+// Set up cron job to run every day at 10 AM France time
+const TIMEZONE = 'Europe/Paris';
+
+cron.schedule('0 10 * * *', async () => {
+  await sendAppointmentReminders();
+}, {
+  timezone: TIMEZONE,
+});
+
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {

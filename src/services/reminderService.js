@@ -1,11 +1,9 @@
-// services/reminderService.js
-
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const { SNSClient, PublishCommand } = require("@aws-sdk/client-sns");
+const { DateTime } = require("luxon");
 
-// Initialize SNS client
 const snsClient = new SNSClient({
   region: "eu-west-3",
   credentials: {
@@ -14,59 +12,83 @@ const snsClient = new SNSClient({
   },
 });
 
-// Function to send SMS via SNS
+function formatPhoneNumberToFrance(phoneNumber) {
+  if (phoneNumber.startsWith("0")) {
+    return "+33" + phoneNumber.slice(1);
+  }
+  return phoneNumber; 
+}
+
 async function sendSMS(phoneNumber, message) {
+  const formattedPhoneNumber = formatPhoneNumberToFrance(phoneNumber);
+
   const params = {
     Message: message,
-    PhoneNumber: phoneNumber,
+    PhoneNumber: formattedPhoneNumber,
   };
 
   try {
     const command = new PublishCommand(params);
     await snsClient.send(command);
-    console.log(`SMS sent to ${phoneNumber}`);
+    console.log(`SMS sent to ${formattedPhoneNumber}`);
   } catch (error) {
-    console.error(`Failed to send SMS to ${phoneNumber}:`, error);
+    console.error(`Failed to send SMS to ${formattedPhoneNumber}:`, error);
   }
 }
 
-module.exports = { sendSMS };
 
-// Function to fetch appointments and send reminders using Prisma
+const constructMessage = (firstName, service, date, time) => {
+  return `
+    Hey ${firstName} ! 👋 
+    Juste un petit rappel que ton rendez-vous pour ${service} est prévu le ${date} à ${time} ⏰.
+    On a hâte de te voir ! 🤩
+    Besoin de changer l'heure ou d'infos supplémentaires ? Fais-le nous savoir directement ici.
+
+    À très vite,
+    L’équipe WeConnect 🚀
+  `;
+};
+
 exports.sendAppointmentReminders = async () => {
   try {
-    // Query for appointments scheduled two days from now
-    const twoDaysFromNow = new Date();
-    twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
+    const twoDaysFromNow = DateTime.now().plus({ days: 2 });
+
+    const startOfDay = twoDaysFromNow.startOf("day").toJSDate();
+    const endOfDay = twoDaysFromNow.endOf("day").toJSDate();
 
     const appointments = await prisma.appointment.findMany({
       where: {
         date: {
-          gte: new Date(twoDaysFromNow.setHours(0, 0, 0, 0)), // Start of the day
-          lt: new Date(twoDaysFromNow.setHours(23, 59, 59, 999)), // End of the day
+          gte: startOfDay,
+          lt: endOfDay,
         },
       },
       include: {
         client: true,
-        provider: true,
         service: true,
       },
     });
 
     if (appointments.length > 0) {
-      for (const appointment of appointments) {
-        const message = `
-                    Hello! This is a reminder for your upcoming appointment:
-                    Service: ${appointment.service.name}
-                    Time: ${appointment.date.toLocaleTimeString("fr-FR", {
-                      timeStyle: "short",
-                    })}
-                    }
-                `;
+      const sendAllReminders = appointments.map(({ client, service, date }) => {
+        const formattedDate = DateTime.fromJSDate(date).toLocaleString(
+          DateTime.DATE_MED
+        );
+        const formattedTime = DateTime.fromJSDate(date).toLocaleString(
+          DateTime.TIME_SIMPLE
+        );
 
-        // Send SMS reminder
-        await sendSMS(appointment.client.phoneNumber, message);
-      }
+        const smsMessage = constructMessage(
+          client.firstName,
+          service.name,
+          formattedDate,
+          formattedTime
+        );
+        return sendSMS(client.phoneNumber, smsMessage);
+      });
+
+      await Promise.all(sendAllReminders);
+      console.log(`${appointments.length} reminders sent.`);
     } else {
       console.log("No appointments found for the next 2 days.");
     }
@@ -74,4 +96,3 @@ exports.sendAppointmentReminders = async () => {
     console.error("Error fetching appointments or sending reminders:", error);
   }
 };
-
