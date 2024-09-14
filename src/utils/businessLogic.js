@@ -2,6 +2,40 @@ const { DateTime } = require("luxon");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const { PublishCommand, SNSClient } = require("@aws-sdk/client-sns");
+
+function formatPhoneNumberToFrance(phoneNumber) {
+  if (phoneNumber.startsWith("0")) {
+    return "+33" + phoneNumber.slice(1);
+  }
+  return phoneNumber;
+}
+
+const snsClient = new SNSClient({
+  region: "eu-west-3",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+exports.sendSMS = async (phoneNumber, message) => {
+  const formattedPhoneNumber = formatPhoneNumberToFrance(phoneNumber);
+
+  const params = {
+    Message: message,
+    PhoneNumber: formattedPhoneNumber,
+  };
+
+  try {
+    const command = new PublishCommand(params);
+    await snsClient.send(command);
+    console.log(`SMS sent to ${formattedPhoneNumber}`);
+  } catch (error) {
+    console.error(`Failed to send SMS to ${formattedPhoneNumber}:`, error);
+  }
+}
+
 exports.generateAvailableRanges = (availability, appointments) => {
   const availableRanges = [];
   let availabilityStartTime = DateTime.fromISO(

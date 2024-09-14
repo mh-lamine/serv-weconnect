@@ -3,6 +3,8 @@ require("dotenv").config();
 const morgan = require("morgan");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
+const cron = require("node-cron");
+
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
@@ -11,6 +13,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const providerCategoryRoutes = require("./routes/providerCategoryRoutes");
 const providerServiceRoutes = require("./routes/providerServiceRoutes");
 const tagsRoutes = require("./routes/tagsRoutes");
+const { sendAppointmentReminders } = require("./services/reminderService");
 
 const app = express();
 
@@ -29,13 +32,17 @@ app.use("/api/providerService", providerServiceRoutes);
 app.use("/api/tags", tagsRoutes);
 
 // Set up cron job to run every day at 10 AM France time
-const TIMEZONE = 'Europe/Paris';
+const TIMEZONE = "Europe/Paris";
 
-cron.schedule('0 10 * * *', async () => {
-  await sendAppointmentReminders();
-}, {
-  timezone: TIMEZONE,
-});
+cron.schedule(
+  "22 18 * * *",
+  async () => {
+    await sendAppointmentReminders();
+  },
+  {
+    timezone: TIMEZONE,
+  }
+);
 
 const PORT = process.env.PORT || 8080;
 
