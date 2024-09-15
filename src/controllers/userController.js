@@ -33,8 +33,7 @@ exports.updateUser = async (req, res) => {
 exports.makeProvider = async (req, res) => {
   try {
     const { userPhoneNumber, password } = req.body;
-    const id = req.user.id;
-    const user = await userService.makeProvider(id, userPhoneNumber, password);
+    const user = await userService.makeProvider(userPhoneNumber, password);
     return res.json(user);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });

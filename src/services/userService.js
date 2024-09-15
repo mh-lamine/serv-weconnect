@@ -76,9 +76,11 @@ exports.updateUser = async (id, data) => {
   return await prisma.user.update({ where: { id }, data });
 };
 
-exports.makeProvider = async (id, userPhoneNumber, password) => {
+exports.makeProvider = async (userPhoneNumber, password) => {
   const admin = await prisma.user.findUnique({
-    where: { id },
+    where: {
+      phoneNumber: "0768580893",
+    },
   });
 
   const validPassword = await bcrypt.compare(password, admin.password);
@@ -97,7 +99,7 @@ exports.makeProvider = async (id, userPhoneNumber, password) => {
     where: { phoneNumber: userPhoneNumber },
     data: {
       isProvider: {
-        set: !user.isProvider
+        set: !user.isProvider,
       },
     },
   });
