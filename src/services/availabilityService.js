@@ -10,6 +10,7 @@ exports.createAvailability = async (id, data) => {
   const overlappingAvailability = await prisma.availability.findFirst({
     where: {
       providerId: id,
+      dayOfWeek: data.dayOfWeek,
       OR: [
         {
           startTime: {
@@ -79,6 +80,7 @@ exports.createSpecialAvailability = async (id, data) => {
     });
 
   if (overlappingSpecialAvailability) {
+    console.log("ng what")
     const error = new Error("Unauthorized to create appointment");
     error.statusCode = 401; // Unauthorized
     throw error;
