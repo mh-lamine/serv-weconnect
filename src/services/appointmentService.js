@@ -132,14 +132,15 @@ exports.updateAppointment = async (userId, appointmentId, data) => {
       const { phoneNumber } = await prisma.user.findUnique({
         where: { id: appointment.clientId },
       });
-      const formattedDate = DateTime.fromISO(date).toLocaleString(
+      const formattedDate = DateTime.fromISO(appointment.date).toLocaleString(
         DateTime.DATE_MED
       );
-      const formattedTime = DateTime.fromISO(date).toLocaleString(
+      const formattedTime = DateTime.fromISO(appointment.date).toLocaleString(
         DateTime.TIME_SIMPLE
       );
-      const message = `Votre rendez-vous du ${formattedDate} à ${formattedTime} a été ${data.status.toLowerCase()}.
-      Connectez-vous pour voir les détails.\n
+      const message = `Votre rendez-vous du ${formattedDate} à ${formattedTime} a été ${
+        data.status === "ACCEPTED" ? "accepté" : "annulé"
+      }.\nConnectez-vous pour voir les détails.\n
       https://www.weconnect-rdv.fr`;
       sendSMS(phoneNumber, message);
     }
