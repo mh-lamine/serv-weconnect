@@ -138,7 +138,7 @@ exports.updateAppointment = async (userId, appointmentId, data) => {
       const formattedTime = DateTime.fromISO(date).toLocaleString(
         DateTime.TIME_SIMPLE
       );
-      const message = `Votre rendez-vous du ${formattedDate} à ${formattedTime} a été ${data.status.toLowerCase()}.\n
+      const message = `Votre rendez-vous du ${formattedDate} à ${formattedTime} a été ${data.status.toLowerCase()}.
       Connectez-vous pour voir les détails.\n
       https://www.weconnect-rdv.fr`;
       sendSMS(phoneNumber, message);
