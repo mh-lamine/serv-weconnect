@@ -35,7 +35,7 @@ app.use("/api/tags", tagsRoutes);
 const TIMEZONE = "Europe/Paris";
 
 cron.schedule(
-  "22 18 * * *",
+  "0 10 * * *",
   async () => {
     await sendAppointmentReminders();
   },

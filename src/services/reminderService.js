@@ -4,19 +4,6 @@ const prisma = new PrismaClient();
 const { DateTime } = require("luxon");
 const { sendSMS } = require("../utils/businessLogic");
 
-const constructMessage = (firstName, service, date, time) => {
-  return `
-    Hey ${firstName} ! 👋
-    Juste un petit rappel que ton rendez-vous pour ${service} est prévu le ${date} à ${time} ⏰.
-    
-    On a hâte de te voir ! 🤩
-    Besoin de changer l'heure ou d'infos supplémentaires ? Fais-le nous savoir directement ici.
-
-    À très vite,
-    L’équipe WeConnect 🚀
-  `;
-};
-
 
 exports.sendAppointmentReminders = async () => {
   try {
@@ -44,13 +31,16 @@ exports.sendAppointmentReminders = async () => {
           DateTime.TIME_SIMPLE
         );
 
-        const smsMessage = constructMessage(
-          client.firstName,
-          service.name,
-          formattedDate,
-          formattedTime
-        );
-        return sendSMS(client.phoneNumber, smsMessage);
+        const message = `
+    Hey ${client.firstName} ! 👋
+Juste un petit rappel que ton rendez-vous pour ${service.name} est prévu le ${formattedDate} à ${formattedTime} ⏰.\n
+On a hâte de te voir ! 🤩\n
+Besoin de changer l'heure ou d'infos supplémentaires ? 
+Fais-le nous savoir directement ici.\n
+À très vite,
+L’équipe WeConnect 🚀
+  `;
+        return sendSMS(client.phoneNumber, message);
       });
 
       await Promise.all(sendAllReminders);

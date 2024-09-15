@@ -1,7 +1,10 @@
 const { DateTime } = require("luxon");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { updateAppointmentsStatuses } = require("../utils/businessLogic");
+const {
+  updateAppointmentsStatuses,
+  sendSMS,
+} = require("../utils/businessLogic");
 
 exports.createAppointment = async (data, userId) => {
   if (!userId) {
@@ -9,9 +12,22 @@ exports.createAppointment = async (data, userId) => {
     error.statusCode = 403; // Forbidden
     throw error;
   }
-  return await prisma.appointment.create({
-    data: { ...data, clientId: userId },
-  });
+  try {
+    const { phoneNumber } = await prisma.user.findUnique({
+      where: { id: data.providerId },
+    });
+    await prisma.appointment.create({
+      data: { ...data, clientId: userId },
+    });
+    sendSMS(
+      phoneNumber,
+      `Vous avez une nouvelle demande de rendez-vous sur WeConnect.\n
+      \nConnectez-vous pour voir les détails.\n
+      \nhttps://pro.weconnect-rdv.fr`
+    );
+  } catch (error) {
+    return error;
+  }
 };
 
 exports.getAppointmentsAsClient = async (id) => {
@@ -62,7 +78,7 @@ exports.getAppointmentsAsProvider = async (id) => {
         in: ["PENDING", "ACCEPTED"],
       },
       date: {
-        gte: endOfDay.toISO(), 
+        gte: endOfDay.toISO(),
       },
     },
     include: {
@@ -112,6 +128,21 @@ exports.updateAppointment = async (userId, appointmentId, data) => {
       },
       data,
     });
+    if (data.status === "ACCEPTED" || data.status === "CANCELLED") {
+      const { phoneNumber } = await prisma.user.findUnique({
+        where: { id: appointment.clientId },
+      });
+      const formattedDate = DateTime.fromISO(date).toLocaleString(
+        DateTime.DATE_MED
+      );
+      const formattedTime = DateTime.fromISO(date).toLocaleString(
+        DateTime.TIME_SIMPLE
+      );
+      const message = `Votre rendez-vous du ${formattedDate} à ${formattedTime} a été ${data.status.toLowerCase()}.\n
+      Connectez-vous pour voir les détails.\n
+      https://www.weconnect-rdv.fr`;
+      sendSMS(phoneNumber, message);
+    }
     return appointment;
   } catch (error) {
     if (error.code === "P2025") {
