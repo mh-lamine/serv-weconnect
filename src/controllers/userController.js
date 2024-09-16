@@ -20,20 +20,20 @@ exports.getProvidersByFilters = async (req, res) => {
   }
 };
 
-exports.getImages = async (req, res) => {
+exports.uploadProfile = async (req, res) => {
   try {
-    const { providerId } = req.params;
-    const presignedUrls = await userService.getImages(providerId);
-    return res.json(presignedUrls);
+    const { id } = req.user;
+    const user = await userService.uploadProfile(id, req.file);
+    return res.json(user);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
 
-exports.uploadFile = async (req, res) => {
+exports.uploadCover = async (req, res) => {
   try {
     const { id } = req.user;
-    const user = await userService.uploadFile(id, req.file);
+    const user = await userService.uploadCover(id, req.file);
     return res.json(user);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
