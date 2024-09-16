@@ -20,6 +20,26 @@ exports.getProvidersByFilters = async (req, res) => {
   }
 };
 
+exports.getImages = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    const presignedUrls = await userService.getImages(providerId);
+    return res.json(presignedUrls);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.uploadFile = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const user = await userService.uploadFile(id, req.file);
+    return res.json(user);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.user;

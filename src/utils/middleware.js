@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-exports.verifyToken = (req, res, next) => {
+const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
 
   // Check if token exists
@@ -21,3 +24,5 @@ exports.verifyToken = (req, res, next) => {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
+module.exports = { verifyToken, upload };
