@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcryptjs");
 const { DateTime } = require("luxon");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
@@ -84,7 +84,27 @@ exports.uploadProfile = async (id, file) => {
     },
   });
 
-  const params = {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { profilePicture: true },
+  });
+
+  if (user?.profilePicture) {
+    const previousKey = user.profilePicture.split(".com/")[1];
+    const deleteParams = {
+      Bucket: "wcntbucket",
+      Key: previousKey,
+    };
+
+    try {
+      await s3.send(new DeleteObjectCommand(deleteParams));
+      console.log("Previous profile picture deleted successfully");
+    } catch (err) {
+      console.error("Error deleting previous profile picture from S3:", err);
+    }
+  }
+
+  const uploadParams = {
     Bucket: "wcntbucket",
     Key: `user-${id}/${file.originalname}`,
     Body: file.buffer,
@@ -92,17 +112,19 @@ exports.uploadProfile = async (id, file) => {
   };
 
   try {
-    await s3.send(new PutObjectCommand(params));
-    const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/${file.originalname}
-`;
-    return await prisma.user.update({
+    await s3.send(new PutObjectCommand(uploadParams));
+    const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/${file.originalname}`;
+
+    await prisma.user.update({
       where: { id },
       data: {
         profilePicture: filePath,
       },
     });
+
+    console.log("Profile picture uploaded and database updated successfully");
   } catch (err) {
-    console.error("Erreur lors du téléchargement du fichier :", err);
+    console.error("Error uploading new profile picture:", err);
   }
 };
 
