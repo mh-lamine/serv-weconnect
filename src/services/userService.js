@@ -129,7 +129,7 @@ exports.uploadCover = async (id, file) => {
 
   try {
     await s3.send(new PutObjectCommand(params));
-    const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/${file.originalname}
+    const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/cover/${file.originalname}
 `;
     const user = await prisma.user.findUnique({ where: { id } });
 
