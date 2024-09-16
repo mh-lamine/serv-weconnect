@@ -2,12 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const bcrypt = require("bcryptjs");
 const { DateTime } = require("luxon");
-const {
-  S3Client,
-  PutObjectCommand,
-  ListObjectsV2Command,
-  GetObjectCommand,
-} = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
@@ -131,16 +126,11 @@ exports.uploadCover = async (id, file) => {
     await s3.send(new PutObjectCommand(params));
     const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/cover/${file.originalname}
 `;
-    const user = await prisma.user.findUnique({ where: { id } });
-
-    const updatedCoverImages = user.coverImage
-      ? [...user.coverImage, filePath]
-      : [filePath];
 
     return await prisma.user.update({
       where: { id },
       data: {
-        coverImage: updatedCoverImages,
+        coverImage: filePath,
       },
     });
   } catch (err) {

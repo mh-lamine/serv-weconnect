@@ -14,7 +14,7 @@ model User {
   phoneNumber            String   @unique
   address                String?
   profilePicture         String?
-  coverImage             String[]
+  coverImage             String?
   bookingTerms           String?
   isProvider             Boolean  @default(false)
   hasActiveSubscription  Boolean  @default(false)
