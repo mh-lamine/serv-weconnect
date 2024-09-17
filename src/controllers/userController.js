@@ -20,26 +20,6 @@ exports.getProvidersByFilters = async (req, res) => {
   }
 };
 
-exports.uploadProfile = async (req, res) => {
-  try {
-    const { id } = req.user;
-    const user = await userService.uploadProfile(id, req.file);
-    return res.json(user);
-  } catch (error) {
-    return res.status(error.statusCode || 500).json({ message: error.message });
-  }
-};
-
-exports.uploadCover = async (req, res) => {
-  try {
-    const { id } = req.user;
-    const user = await userService.uploadCover(id, req.file);
-    return res.json(user);
-  } catch (error) {
-    return res.status(error.statusCode || 500).json({ message: error.message });
-  }
-};
-
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.user;
