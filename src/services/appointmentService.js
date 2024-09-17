@@ -21,9 +21,9 @@ exports.createAppointment = async (data, userId) => {
     });
     sendSMS(
       phoneNumber,
-      `Vous avez une nouvelle demande de rendez-vous sur WeConnect.\n
-      \nConnectez-vous pour voir les détails.\n
-      \nhttps://pro.weconnect-rdv.fr`
+      `Vous avez une nouvelle demande de rendez-vous sur WeConnect 🎉👑\n
+Connectez-vous pour voir les détails.
+https://pro.weconnect-rdv.fr`
     );
   } catch (error) {
     return error;
