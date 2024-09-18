@@ -12,6 +12,7 @@ model User {
   email                  String?   @unique
   password               String
   phoneNumber            String   @unique
+  contactMethods         Json?
   address                String?
   profilePicture         String?
   coverImage             String?

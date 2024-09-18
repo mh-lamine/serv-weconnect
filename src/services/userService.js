@@ -73,6 +73,7 @@ exports.getProvidersByFilters = async (filters) => {
 };
 
 exports.updateUser = async (id, data) => {
+  console.log(data)
   return await prisma.user.update({ where: { id }, data });
 };
 
