@@ -58,6 +58,10 @@ exports.getAppointmentsAsClient = async (id) => {
       provider: true,
       service: true,
     },
+    orderBy: {
+      date: "desc",
+    },
+    take: 5,
   });
 
   return { futureAppointments, pastAppointments };
