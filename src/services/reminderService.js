@@ -24,12 +24,12 @@ exports.sendAppointmentReminders = async () => {
 
     if (appointments.length > 0) {
       const sendAllReminders = appointments.map(({ client, service, date }) => {
-        const formattedDate = DateTime.fromISO(date).toLocaleString(
-          DateTime.DATE_MED
-        );
-        const formattedTime = DateTime.fromISO(date).toLocaleString(
-          DateTime.TIME_SIMPLE
-        );
+        const formattedDate = DateTime.fromISO(date)
+          .setLocale("fr")
+          .toLocaleString(DateTime.DATE_MED);
+        const formattedTime = DateTime.fromISO(date)
+          .setLocale("fr")
+          .toLocaleString(DateTime.TIME_SIMPLE);
 
         const message = `
     Hey ${client.firstName} ! 👋

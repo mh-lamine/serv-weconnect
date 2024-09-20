@@ -136,10 +136,10 @@ exports.updateAppointment = async (userId, appointmentId, data) => {
       const { phoneNumber } = await prisma.user.findUnique({
         where: { id: appointment.clientId },
       });
-      const formattedDate = DateTime.fromISO(appointment.date).toLocaleString(
+      const formattedDate = DateTime.fromISO(appointment.date).setLocale('fr').toLocaleString(
         DateTime.DATE_MED
       );
-      const formattedTime = DateTime.fromISO(appointment.date).toLocaleString(
+      const formattedTime = DateTime.fromISO(appointment.date).setLocale('fr').toLocaleString(
         DateTime.TIME_SIMPLE
       );
       const message = `Votre rendez-vous du ${formattedDate} à ${formattedTime} a été ${
