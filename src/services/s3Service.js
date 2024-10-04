@@ -24,18 +24,19 @@ exports.uploadProfile = async (id, file) => {
   sanitizedFileName = sanitizedFileName.replace(/\s+/g, "_"); // Replace spaces with underscores
   const finalFileName = `${sanitizedFileName}${ext}`;
 
-  const [table1, table2] = prisma.$transaction([
-    await prisma.user.findUnique({
+  const [table1, table2] = await prisma.$transaction([
+    prisma.user.findUnique({
       where: { id },
       select: { profilePicture: true },
     }),
-    await prisma.salon.findUnique({
+    prisma.salon.findUnique({
       where: { id },
       select: { profilePicture: true },
     }),
   ]);
 
   const user = table1 || table2;
+  const isSalon = !!table2;
 
   // Delete previous profile picture from S3
   if (user?.profilePicture) {
@@ -65,21 +66,21 @@ exports.uploadProfile = async (id, file) => {
     await s3.send(new PutObjectCommand(uploadParams));
     const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/${finalFileName}`;
 
-    prisma.$transaction([
-      await prisma.user.update({
-        where: { id },
-        data: {
-          profilePicture: filePath,
-        },
-      }),
+    if (isSalon) {
       await prisma.salon.update({
         where: { id },
         data: {
           profilePicture: filePath,
         },
-      }),
-    ]);
-
+      });
+    } else {
+      await prisma.user.update({
+        where: { id },
+        data: {
+          profilePicture: filePath,
+        },
+      });
+    }
     console.log("Profile picture uploaded and database updated successfully");
   } catch (err) {
     console.error("Error uploading new profile picture:", err);
@@ -102,18 +103,19 @@ exports.uploadCover = async (id, file) => {
   const finalFileName = `${sanitizedFileName}${ext}`;
 
   // Find the existing cover image
-  const [table1, table2] = prisma.$transaction([
-    await prisma.user.findUnique({
+  const [table1, table2] = await prisma.$transaction([
+    prisma.user.findUnique({
       where: { id },
       select: { coverImage: true },
     }),
-    await prisma.salon.findUnique({
+    prisma.salon.findUnique({
       where: { id },
       select: { coverImage: true },
     }),
   ]);
 
   const user = table1 || table2;
+  const isSalon = !!table2;
 
   // Delete previous cover image from S3 if it exists
   if (user?.coverImage) {
@@ -143,38 +145,39 @@ exports.uploadCover = async (id, file) => {
     await s3.send(new PutObjectCommand(uploadParams));
     const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/cover/${finalFileName}`;
 
-    return prisma.$transaction([
-      await prisma.user.update({
+    if (isSalon) {
+      return await prisma.salon.update({
         where: { id },
         data: {
           coverImage: filePath,
         },
-      }),
-      await prisma.salon.update({
-        where: { id },
-        data: {
-          coverImage: filePath,
-        },
-      }),
-    ]);
+      });
+    }
+    return await prisma.user.update({
+      where: { id },
+      data: {
+        coverImage: filePath,
+      },
+    });
   } catch (err) {
     console.error("Error uploading new cover image:", err);
   }
 };
 
 exports.deleteProfile = async (id) => {
-  const [table1, table2] = prisma.$transaction([
-    await prisma.user.findUnique({
+  const [table1, table2] = await prisma.$transaction([
+    prisma.user.findUnique({
       where: { id },
       select: { profilePicture: true },
     }),
-    await prisma.salon.findUnique({
+    prisma.salon.findUnique({
       where: { id },
       select: { profilePicture: true },
     }),
   ]);
 
   const user = table1 || table2;
+  const isSalon = !!table2;
 
   if (user?.profilePicture) {
     const s3 = new S3Client({
@@ -199,35 +202,36 @@ exports.deleteProfile = async (id) => {
     }
   }
 
-  return prisma.$transaction([
-    await prisma.user.update({
+  if (isSalon) {
+    return await prisma.salon.update({
       where: { id },
       data: {
         profilePicture: null,
       },
-    }),
-    await prisma.salon.update({
-      where: { id },
-      data: {
-        profilePicture: null,
-      },
-    }),
-  ]);
+    });
+  }
+  return await prisma.user.update({
+    where: { id },
+    data: {
+      profilePicture: null,
+    },
+  });
 };
 
 exports.deleteCover = async (id) => {
-  const [table1, table2] = prisma.$transaction([
-    await prisma.user.findUnique({
+  const [table1, table2] = await prisma.$transaction([
+    prisma.user.findUnique({
       where: { id },
       select: { coverImage: true },
     }),
-    await prisma.salon.findUnique({
+    prisma.salon.findUnique({
       where: { id },
       select: { coverImage: true },
     }),
   ]);
 
   const user = table1 || table2;
+  const isSalon = !!table2;
 
   if (user?.coverImage) {
     const s3 = new S3Client({
@@ -252,18 +256,18 @@ exports.deleteCover = async (id) => {
     }
   }
 
-  return prisma.$transaction([
-    await prisma.user.update({
+  if (isSalon) {
+    return await prisma.salon.update({
       where: { id },
       data: {
         coverImage: null,
       },
-    }),
-    await prisma.salon.update({
-      where: { id },
-      data: {
-        coverImage: null,
-      },
-    }),
-  ]);
+    });
+  }
+  return await prisma.user.update({
+    where: { id },
+    data: {
+      coverImage: null,
+    },
+  });
 };

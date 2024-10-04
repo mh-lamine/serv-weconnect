@@ -69,7 +69,12 @@ exports.getProvidersByFilters = async (filters) => {
     },
   };
 
-  return await prisma.user.findMany(query);
+  const [table1, table2] = await prisma.$transaction([
+    prisma.user.findMany(query),
+    prisma.salon.findMany(),
+  ]);
+
+  return table1.concat(table2);
 };
 
 exports.updateUser = async (id, data) => {
