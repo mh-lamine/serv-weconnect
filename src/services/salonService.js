@@ -1,3 +1,6 @@
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
 exports.getSalon = async (id) => {
   return await prisma.salon.findUnique({ where: { id } });
 };
