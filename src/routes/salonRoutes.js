@@ -7,3 +7,5 @@ router.get("/", verifyToken, salonController.getSalon);
 router.post("/", verifyToken, salonController.addMember);
 router.patch("/", verifyToken, salonController.updateSalon);
 router.delete("/", verifyToken, salonController.removeMember);
+
+module.exports = router;

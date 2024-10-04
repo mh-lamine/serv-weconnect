@@ -17,3 +17,5 @@ router.post(
 );
 router.delete("/profile", verifyToken, s3Controller.deleteProfile);
 router.delete("/cover", verifyToken, s3Controller.deleteCover);
+
+module.exports = router;
