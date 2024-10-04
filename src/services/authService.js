@@ -26,12 +26,12 @@ exports.registerUser = async (data) => {
 
   // Generate tokens
   const accessToken = jwt.sign(
-    { id: newUser.id },
+    { id: newUser.id, role: newUser.role },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "30m" }
   );
   const refreshToken = jwt.sign(
-    { id: newUser.id },
+    { id: newUser.id, role: newUser.role },
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: "7d" }
   );
@@ -42,6 +42,52 @@ exports.registerUser = async (data) => {
   });
 
   return { accessToken, refreshToken, newUser };
+};
+
+exports.registerSalon = async (data) => {
+  const { phoneNumber, email, password } = data;
+
+  // Check if the salon already exists by phone number or email
+  const salonExists = await prisma.salon.findFirst({
+    where: {
+      OR: [{ phoneNumber }, { email }],
+    },
+  });
+
+  if (salonExists) {
+    const error = new Error("Salon already exists");
+    error.statusCode = 409;
+    throw error;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const newSalon = await prisma.salon.create({
+    data: {
+      ...data,
+      password: hashedPassword,
+    },
+  });
+
+  // Generate tokens
+  const accessToken = jwt.sign(
+    { id: newSalon.id, role: newSalon.role },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "30m" }
+  );
+  const refreshToken = jwt.sign(
+    { id: newSalon.id, role: newSalon.role },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  // create refresh token in database
+  await prisma.refreshToken.create({
+    data: { token: refreshToken, salonId: newSalon.id },
+  });
+
+  return { accessToken, refreshToken, newSalon };
 };
 
 exports.loginUser = async (phoneNumber, password) => {
@@ -67,12 +113,12 @@ exports.loginUser = async (phoneNumber, password) => {
 
   // Generate tokens
   const accessToken = jwt.sign(
-    { id: user.id },
+    { id: user.id, rol: user.role },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "30m" }
   );
   const refreshToken = jwt.sign(
-    { id: user.id },
+    { id: user.id, rol: user.role },
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: "7d" }
   );
@@ -86,15 +132,67 @@ exports.loginUser = async (phoneNumber, password) => {
   return { user, accessToken, refreshToken };
 };
 
+exports.loginSalon = async (email, password) => {
+  // Check if salon exists
+  const salon = await prisma.salon.findFirst({
+    where: { email },
+  });
+
+  if (!salon) {
+    const error = new Error("Invalid credentials");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // Compare passwords
+  const validPassword = await bcrypt.compare(password, salon.password);
+
+  if (!validPassword) {
+    const error = new Error("Invalid credentials");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // Generate tokens
+  const accessToken = jwt.sign(
+    { id: salon.id, role: salon.role },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "30m" }
+  );
+  const refreshToken = jwt.sign(
+    { id: salon.id, role: salon.role },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  // update refresh token in database
+  await prisma.refreshToken.update({
+    where: { salonId: salon.id },
+    data: { token: refreshToken },
+  });
+
+  return { salon, accessToken, refreshToken };
+};
+
 exports.refreshToken = async (refreshToken) => {
   const userToken = await prisma.refreshToken.findFirst({
     where: { token: refreshToken },
   });
   if (!userToken) return res.sendStatus(403);
 
-  const user = await prisma.user.findFirst({
-    where: { id: userToken.userId },
-  });
+  const [table1, table2, table3] = await prisma.$transaction([
+    prisma.user.findFirst({
+      where: { id: userToken.userId },
+    }),
+    prisma.salon.findFirst({
+      where: { id: userToken.userId },
+    }),
+    prisma.member.findFirst({
+      where: { id: userToken.userId },
+    }),
+  ]);
+
+  const user = table1 || table2 || table3;
 
   // Verify token
   const accessToken = jwt.verify(
@@ -102,12 +200,16 @@ exports.refreshToken = async (refreshToken) => {
     process.env.REFRESH_TOKEN_SECRET,
     (err, userToken) => {
       if (err) return res.status(403);
-      return jwt.sign({ id: userToken.id }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "30m",
-      });
+      return jwt.sign(
+        { id: userToken.id, role: user.role },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+          expiresIn: "30m",
+        }
+      );
     }
   );
-  return { accessToken, isProvider: user.isProvider };
+  return { accessToken, isProvider: user.isProvider || null };
 };
 
 exports.logout = async (refreshToken) => {

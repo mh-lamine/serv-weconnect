@@ -29,6 +29,7 @@ model User {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
   refreshToken           RefreshToken?
+  role                   Role     @default(USER)
 
   appointmentsAsProvider Appointment[]     @relation("provider")
   appointmentsAsClient   Appointment[]     @relation("client")
@@ -55,6 +56,8 @@ model Salon {
   coverImage      String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  role            Role     @default(SALON)
+  refreshToken    RefreshToken?
 
   members         Member[]
   providerCategories ProviderCategory[]
@@ -73,6 +76,7 @@ model Member {
   accessCode String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  role      Role      @default(MEMBER)
 
   salonId String
   salon   Salon  @relation(fields: [salonId], references: [id], onDelete: Cascade)
@@ -202,8 +206,10 @@ model RefreshToken {
   id        String  @id @default(cuid())
   token     String?  @unique
   createdAt DateTime @default(now())
-  userId    String   @unique
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?   @unique
+  salonId   String?   @unique
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  salon     Salon?   @relation(fields: [salonId], references: [id], onDelete: Cascade)
 }
 
 enum AppointmentStatus {
@@ -228,4 +234,10 @@ enum Plan {
   PRO
   ENTERPRISE
   FRANCHISE
+}
+
+enum Role {
+  USER
+  SALON
+  MEMBER
 }

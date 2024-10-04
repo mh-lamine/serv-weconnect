@@ -77,7 +77,7 @@ exports.getAppointmentsAsProvider = async (id) => {
 
   const futureAppointments = await prisma.appointment.findMany({
     where: {
-      providerId: id,
+      OR: [{ salonId: id }, { providerId: id }],
       status: {
         in: ["PENDING", "ACCEPTED"],
       },
@@ -88,13 +88,14 @@ exports.getAppointmentsAsProvider = async (id) => {
     include: {
       client: true,
       service: true,
+      member: true,
     },
   });
 
   const today = DateTime.now().toISODate();
   const todaysAppointments = await prisma.appointment.findMany({
     where: {
-      providerId: id,
+      OR: [{ salonId: id }, { providerId: id }],
       date: {
         startsWith: today,
       },
@@ -105,18 +106,20 @@ exports.getAppointmentsAsProvider = async (id) => {
     include: {
       client: true,
       service: true,
+      member: true,
     },
   });
 
   const missedAppointments = await prisma.appointment.findMany({
     where: {
-      providerId: id,
+      OR: [{ salonId: id }, { providerId: id }],
       date: { lt: now },
       status: "PENDING",
     },
     include: {
       client: true,
       service: true,
+      member: true,
     },
   });
 
@@ -128,7 +131,7 @@ exports.updateAppointment = async (userId, appointmentId, data) => {
     const appointment = await prisma.appointment.update({
       where: {
         id: appointmentId,
-        OR: [{ clientId: userId }, { providerId: userId }],
+        OR: [{ clientId: userId }, { providerId: userId }, { salonId: userId }],
       },
       data,
     });
@@ -136,12 +139,12 @@ exports.updateAppointment = async (userId, appointmentId, data) => {
       const { phoneNumber } = await prisma.user.findUnique({
         where: { id: appointment.clientId },
       });
-      const formattedDate = DateTime.fromISO(appointment.date).setLocale('fr').toLocaleString(
-        DateTime.DATE_MED
-      );
-      const formattedTime = DateTime.fromISO(appointment.date).setLocale('fr').toLocaleString(
-        DateTime.TIME_SIMPLE
-      );
+      const formattedDate = DateTime.fromISO(appointment.date)
+        .setLocale("fr")
+        .toLocaleString(DateTime.DATE_MED);
+      const formattedTime = DateTime.fromISO(appointment.date)
+        .setLocale("fr")
+        .toLocaleString(DateTime.TIME_SIMPLE);
       const message = `Votre rendez-vous du ${formattedDate} à ${formattedTime} a été ${
         data.status === "ACCEPTED" ? "accepté" : "annulé"
       }.\nConnectez-vous pour voir les détails.\n
@@ -162,7 +165,7 @@ exports.deleteAppointment = async (userId, appointmentId) => {
     await prisma.appointment.delete({
       where: {
         id: appointmentId,
-        OR: [{ clientId: userId }, { providerId: userId }],
+        OR: [{ clientId: userId }, { providerId: userId }, { salonId: userId }],
       },
     });
   } catch (error) {

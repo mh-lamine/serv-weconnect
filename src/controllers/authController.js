@@ -2,9 +2,8 @@ const authService = require("../services/authService");
 
 exports.registerUser = async (req, res) => {
   try {
-    const { newUser, accessToken, refreshToken } = await authService.registerUser(
-      req.body
-    );
+    const { newUser, accessToken, refreshToken } =
+      await authService.registerUser(req.body);
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -14,6 +13,24 @@ exports.registerUser = async (req, res) => {
         domain: ".weconnect-rdv.fr",
       })
       .json({ accessToken, ...newUser });
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.registerSalon = async (req, res) => {
+  try {
+    const { newSalon, accessToken, refreshToken } =
+      await authService.registerSalon(req.body);
+    return res
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 24,
+        domain: ".weconnect-rdv.fr",
+      })
+      .json({ accessToken, ...newSalon });
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
@@ -38,6 +55,30 @@ exports.loginUser = async (req, res) => {
         domain: ".weconnect-rdv.fr",
       })
       .json({ ...user, accessToken });
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.loginSalon = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const { salon, accessToken, refreshToken } = await authService.loginSalon(
+      email,
+      password
+    );
+    return res
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 24,
+        domain: ".weconnect-rdv.fr",
+      })
+      .json({ ...salon, accessToken });
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }

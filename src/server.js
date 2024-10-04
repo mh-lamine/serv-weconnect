@@ -7,6 +7,8 @@ const cron = require("node-cron");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const salonRoutes = require("./routes/salonRoutes");
+const s3routes = require("./routes/s3routes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const availabilityRoutes = require("./routes/availabilityRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
@@ -24,6 +26,8 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/salon", salonRoutes);
+app.use("/api/s3", s3routes)
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/availabilities", availabilityRoutes);
 app.use("/api/reviews", reviewRoutes);
