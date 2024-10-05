@@ -10,7 +10,7 @@ exports.addMember = async (id, data) => {
 };
 
 exports.updateSalon = async (id, data) => {
-  return await prisma.salon.update({ where: { id }, data });
+  return await prisma.salon.update({ where: { id }, data: { ...data } });
 };
 
 exports.removeMember = async (salonId, memberId) => {
