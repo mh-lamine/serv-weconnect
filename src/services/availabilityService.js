@@ -6,10 +6,18 @@ const {
   generateTimeSlots,
 } = require("../utils/businessLogic");
 
-exports.createAvailability = async (id, data) => {
+exports.createAvailability = async (id, role, data) => {
+  const ref =
+    role === "USER"
+      ? "providerId"
+      : "SALON"
+      ? "salonId"
+      : "MEMBER"
+      ? "memberId"
+      : null;
   const overlappingAvailability = await prisma.availability.findFirst({
     where: {
-      providerId: id,
+      [ref]: id,
       dayOfWeek: data.dayOfWeek,
       OR: [
         {
@@ -43,18 +51,26 @@ exports.createAvailability = async (id, data) => {
   await prisma.availability.create({
     data: {
       ...data,
-      providerId: id,
+      [ref]: id,
     },
   });
 
   return "Disponibilité créée avec succès";
 };
 
-exports.createSpecialAvailability = async (id, data) => {
+exports.createSpecialAvailability = async (id, role, data) => {
+  const ref =
+    role === "USER"
+      ? "providerId"
+      : "SALON"
+      ? "salonId"
+      : "MEMBER"
+      ? "memberId"
+      : null;
   const overlappingSpecialAvailability =
     await prisma.specialAvailability.findFirst({
       where: {
-        providerId: id,
+        [ref]: id,
         date: data.date,
         OR: [
           {
@@ -80,7 +96,6 @@ exports.createSpecialAvailability = async (id, data) => {
     });
 
   if (overlappingSpecialAvailability) {
-    console.log("ng what")
     const error = new Error("Unauthorized to create appointment");
     error.statusCode = 401; // Unauthorized
     throw error;
@@ -89,7 +104,7 @@ exports.createSpecialAvailability = async (id, data) => {
   await prisma.specialAvailability.create({
     data: {
       ...data,
-      providerId: id,
+      [ref]: id,
     },
   });
 
@@ -102,7 +117,7 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
 
   const specialDayAvailabilities = await prisma.specialAvailability.findMany({
     where: {
-      providerId: id,
+      OR: [{ providerId: id }, { salonId: id }],
       date: dateTime.toISODate(),
     },
   });
@@ -112,7 +127,7 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
       ? specialDayAvailabilities
       : await prisma.availability.findMany({
           where: {
-            providerId: id,
+            OR: [{ providerId: id }, { salonId: id }],
             dayOfWeek,
           },
         });
@@ -122,7 +137,7 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
       status: {
         in: ["PENDING", "ACCEPTED"],
       },
-      providerId: id,
+      OR: [{ providerId: id }, { salonId: id }],
       date: {
         startsWith: dateTime.toISODate(),
       },
@@ -148,11 +163,13 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
 exports.getAvailabilities = async (id) => {
   const [availabilities, specialAvailabilities] = await prisma.$transaction([
     prisma.availability.findMany({
-      where: { providerId: id },
+      where: {
+        OR: [{ providerId: id }, { salonId: id }],
+      },
     }),
     prisma.specialAvailability.findMany({
       where: {
-        providerId: id,
+        OR: [{ providerId: id }, { salonId: id }],
         date: {
           gte: DateTime.now().toISODate(),
         },
@@ -163,12 +180,12 @@ exports.getAvailabilities = async (id) => {
   return { availabilities, specialAvailabilities };
 };
 
-exports.updateAvailability = async (providerId, availabilityId, data) => {
+exports.updateAvailability = async (id, availabilityId, data) => {
   try {
     await prisma.availability.update({
       where: {
         id: availabilityId,
-        providerId,
+        OR: [{ providerId: id }, { salonId: id }],
       },
       data,
     });
@@ -177,12 +194,12 @@ exports.updateAvailability = async (providerId, availabilityId, data) => {
   }
 };
 
-exports.deleteAvailability = async (providerId, availabilityId) => {
+exports.deleteAvailability = async (id, availabilityId) => {
   try {
     await prisma.availability.delete({
       where: {
         id: availabilityId,
-        providerId,
+        OR: [{ providerId: id }, { salonId: id }],
       },
     });
   } catch (error) {
@@ -190,12 +207,12 @@ exports.deleteAvailability = async (providerId, availabilityId) => {
   }
 };
 
-exports.deleteSpecialAvailability = async (providerId, availabilityId) => {
+exports.deleteSpecialAvailability = async (id, availabilityId) => {
   try {
     await prisma.specialAvailability.delete({
       where: {
         id: availabilityId,
-        providerId,
+        OR: [{ providerId: id }, { salonId: id }],
       },
     });
   } catch (error) {

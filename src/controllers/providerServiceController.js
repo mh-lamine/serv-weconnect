@@ -2,9 +2,10 @@ const providerServiceService = require("../services/providerServiceService");
 
 exports.createProviderService = async (req, res) => {
   try {
-    const providerId = req.user.id;
+    const { id, role } = req.user;
     const providerService = await providerServiceService.createProviderService(
-      providerId,
+      id,
+      role,
       req.body
     );
     return res.status(201).json(providerService);

@@ -6,25 +6,39 @@ const {
   sendSMS,
 } = require("../utils/businessLogic");
 
-exports.createAppointment = async (data, userId) => {
-  if (!userId) {
+exports.createAppointment = async (data, clientId) => {
+  if (!clientId) {
     const error = new Error("Unauthorized to create appointment");
     error.statusCode = 403; // Forbidden
     throw error;
   }
+
+  // const [provider, salon] = await prisma.$transaction([
+  //   await prisma.user.findUnique({
+  //     where: { id },
+  //   }),
+  //   await prisma.salon.findUnique({
+  //     where: { id },
+  //   }),
+  // ]);
+
   try {
-    const { phoneNumber } = await prisma.user.findUnique({
-      where: { id: data.providerId },
-    });
     await prisma.appointment.create({
-      data: { ...data, clientId: userId },
+      data: { ...data, clientId },
     });
-    sendSMS(
-      phoneNumber,
-      `Vous avez une nouvelle demande de rendez-vous sur WeConnect 🎉👑\n
+    if (data.providerId) {
+      sendSMS(
+        provider.phoneNumber,
+        `Vous avez une nouvelle demande de rendez-vous sur WeConnect 🎉👑\n
 Connectez-vous pour voir les détails.
 https://pro.weconnect-rdv.fr`
-    );
+      );
+      return;
+    } else if (data.salonId) {
+      //send email to salon with appointment details
+    } else {
+      throw new Error("Provider or salon not found");
+    }
   } catch (error) {
     return error;
   }
@@ -42,6 +56,7 @@ exports.getAppointmentsAsClient = async (id) => {
     },
     include: {
       provider: true,
+      salon: true,
       service: true,
     },
   });
@@ -56,6 +71,7 @@ exports.getAppointmentsAsClient = async (id) => {
     },
     include: {
       provider: true,
+      salon: true,
       service: true,
     },
     orderBy: {

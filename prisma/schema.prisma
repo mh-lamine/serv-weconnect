@@ -49,6 +49,8 @@ model Salon {
   password        String
   phoneNumber     String   @unique
   address         String
+  bookingTerms           String?
+  isProvider      Boolean  @default(true)
   isInVacancyMode        Boolean  @default(false)
   autoAcceptAppointments Boolean  @default(true)
   isFreeTrial     Boolean  @default(false)

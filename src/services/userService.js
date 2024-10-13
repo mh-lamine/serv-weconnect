@@ -71,7 +71,7 @@ exports.getProvidersByFilters = async (filters) => {
 
   const [table1, table2] = await prisma.$transaction([
     prisma.user.findMany(query),
-    prisma.salon.findMany(),
+    prisma.salon.findMany(query),
   ]);
 
   return table1.concat(table2);
@@ -96,9 +96,16 @@ exports.makeProvider = async (userPhoneNumber, password) => {
     throw error;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { phoneNumber: userPhoneNumber },
-  });
+  const [table1, table2] = await prisma.$transaction([
+    await prisma.user.findUnique({
+      where: { phoneNumber: userPhoneNumber },
+    }),
+    await prisma.salon.findUnique({
+      where: { phoneNumber: userPhoneNumber },
+    }),
+  ]);
+
+  const user = table1 || table2;
 
   return await prisma.user.update({
     where: { phoneNumber: userPhoneNumber },

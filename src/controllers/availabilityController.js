@@ -2,9 +2,10 @@ const availabilityService = require("../services/availabilityService");
 
 exports.createAvailability = async (req, res) => {
   try {
-    const { id } = req.user;
+    const { id, role } = req.user;
     const availability = await availabilityService.createAvailability(
       id,
+      role,
       req.body
     );
     return res.status(201).json(availability);
@@ -15,9 +16,10 @@ exports.createAvailability = async (req, res) => {
 
 exports.createSpecialAvailability = async (req, res) => {
   try {
-    const { id } = req.user;
+    const { id, role } = req.user;
     const availability = await availabilityService.createSpecialAvailability(
       id,
+      role,
       req.body
     );
     return res.status(201).json(availability);

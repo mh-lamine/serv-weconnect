@@ -3,11 +3,8 @@ const appointmentService = require("../services/appointmentService");
 exports.createAppointment = async (req, res) => {
   try {
     const data = req.body;
-    const userId = req.user.id;
-    const appointment = await appointmentService.createAppointment(
-      data,
-      userId
-    );
+    const { id } = req.user;
+    const appointment = await appointmentService.createAppointment(data, id);
     return res.status(201).json(appointment);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });

@@ -2,10 +2,11 @@ const providerCategoryService = require("../services/providerCategoryService");
 
 exports.createProviderCategory = async (req, res) => {
   try {
-    const providerId = req.user.id;
+    const {id, role} = req.user;
     const providerCategory =
       await providerCategoryService.createProviderCategory(
-        providerId,
+        id,
+        role,
         req.body
       );
     return res.status(201).json(providerCategory);
