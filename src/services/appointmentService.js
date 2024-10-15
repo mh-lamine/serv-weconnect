@@ -13,31 +13,21 @@ exports.createAppointment = async (data, clientId) => {
     throw error;
   }
 
-  // const [provider, salon] = await prisma.$transaction([
-  //   await prisma.user.findUnique({
-  //     where: { id },
-  //   }),
-  //   await prisma.salon.findUnique({
-  //     where: { id },
-  //   }),
-  // ]);
-
   try {
     await prisma.appointment.create({
       data: { ...data, clientId },
     });
     if (data.providerId) {
+      const { phoneNumber } = await prisma.user.findUnique({
+        where: { id: data.providerId },
+      });
       sendSMS(
-        provider.phoneNumber,
+        phoneNumber,
         `Vous avez une nouvelle demande de rendez-vous sur WeConnect 🎉👑\n
 Connectez-vous pour voir les détails.
 https://pro.weconnect-rdv.fr`
       );
       return;
-    } else if (data.salonId) {
-      //send email to salon with appointment details
-    } else {
-      throw new Error("Provider or salon not found");
     }
   } catch (error) {
     return error;
