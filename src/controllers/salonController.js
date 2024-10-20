@@ -1,4 +1,4 @@
-const salonService = require('../services/salonService');
+const salonService = require("../services/salonService");
 
 exports.getSalon = async (req, res) => {
   try {
@@ -8,7 +8,17 @@ exports.getSalon = async (req, res) => {
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};
+
+exports.getMembers = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const members = await salonService.getMembers(id);
+    return res.json(members);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
 
 exports.addMember = async (req, res) => {
   try {
@@ -18,7 +28,7 @@ exports.addMember = async (req, res) => {
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};
 
 exports.updateSalon = async (req, res) => {
   try {
@@ -28,7 +38,7 @@ exports.updateSalon = async (req, res) => {
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};
 
 exports.removeMember = async (req, res) => {
   try {
@@ -39,4 +49,4 @@ exports.removeMember = async (req, res) => {
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};

@@ -113,12 +113,12 @@ exports.loginUser = async (phoneNumber, password) => {
 
   // Generate tokens
   const accessToken = jwt.sign(
-    { id: user.id, rol: user.role },
+    { id: user.id, role: user.role },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "30m" }
   );
   const refreshToken = jwt.sign(
-    { id: user.id, rol: user.role },
+    { id: user.id, role: user.role },
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: "7d" }
   );

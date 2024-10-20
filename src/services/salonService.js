@@ -5,6 +5,10 @@ exports.getSalon = async (id) => {
   return await prisma.salon.findUnique({ where: { id } });
 };
 
+exports.getMembers = async (id) => {
+  return await prisma.member.findMany({ where: { salonId: id } });
+}
+
 exports.addMember = async (id, data) => {
   return await prisma.member.create({ data: { ...data, salonId: id } });
 };
