@@ -20,6 +20,26 @@ exports.getMembers = async (req, res) => {
   }
 };
 
+exports.getMember = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const member = await salonService.getMember(id, req.params.id);
+    return res.json(member);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+}
+
+exports.updateMember = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const member = await salonService.updateMember(id, req.params.id, req.body);
+    return res.json(member);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+}
+
 exports.addMember = async (req, res) => {
   try {
     const { id } = req.user;
@@ -43,7 +63,7 @@ exports.updateSalon = async (req, res) => {
 exports.removeMember = async (req, res) => {
   try {
     const salonId = req.user.id;
-    const memberId = req.body.memberId;
+    const memberId = req.params.id;
     await salonService.removeMember(salonId, memberId);
     return res.status(204).end();
   } catch (error) {

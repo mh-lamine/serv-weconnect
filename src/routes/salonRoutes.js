@@ -5,9 +5,10 @@ const salonController = require("../controllers/salonController");
 
 router.get("/", verifyToken, salonController.getSalon);
 router.get("/members", verifyToken, salonController.getMembers);
-// router.get("/members/:id", verifyToken, salonController.getMember);
+router.get("/members/:id", verifyToken, salonController.getMember);
+router.patch("/members/:id", verifyToken, salonController.updateMember);
 router.post("/", verifyToken, salonController.addMember);
 router.patch("/", verifyToken, salonController.updateSalon);
-router.delete("/", verifyToken, salonController.removeMember);
+router.delete("/members/:id", verifyToken, salonController.removeMember);
 
 module.exports = router;

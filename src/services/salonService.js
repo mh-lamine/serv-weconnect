@@ -6,8 +6,27 @@ exports.getSalon = async (id) => {
 };
 
 exports.getMembers = async (id) => {
-  return await prisma.member.findMany({ where: { salonId: id } });
-}
+  return await prisma.member.findMany({
+    where: { salonId: id },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
+exports.getMember = async (salonId, memberId) => {
+  return await prisma.member.findUnique({ where: { id: memberId, salonId } });
+};
+
+exports.updateMember = async (salonId, memberId, data) => {
+  return await prisma.member.update({
+    where: {
+      id: memberId,
+      salonId,
+    },
+    data: { ...data },
+  });
+};
 
 exports.addMember = async (id, data) => {
   return await prisma.member.create({ data: { ...data, salonId: id } });
