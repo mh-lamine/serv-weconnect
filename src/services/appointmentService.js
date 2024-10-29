@@ -88,7 +88,7 @@ exports.getAppointmentsAsProvider = async (id) => {
         in: ["PENDING", "ACCEPTED"],
       },
       date: {
-        gte: endOfDay.toISO(),
+        gte: now,
       },
     },
     include: {
