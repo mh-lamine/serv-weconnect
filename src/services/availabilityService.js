@@ -7,14 +7,7 @@ const {
 } = require("../utils/businessLogic");
 
 exports.createAvailability = async (id, role, data) => {
-  const ref =
-    role === "USER"
-      ? "providerId"
-      : "SALON"
-      ? "salonId"
-      : "MEMBER"
-      ? "memberId"
-      : null;
+  const ref = role === "USER" ? "providerId" : "SALON" ? "salonId" : null;
   const overlappingAvailability = await prisma.availability.findFirst({
     where: {
       [ref]: id,
@@ -58,15 +51,52 @@ exports.createAvailability = async (id, role, data) => {
   return "Disponibilité créée avec succès";
 };
 
+exports.createMemberAvailability = async (memberId, data) => {
+  const overlappingAvailability = await prisma.availability.findFirst({
+    where: {
+      memberId,
+      dayOfWeek: data.dayOfWeek,
+      OR: [
+        {
+          startTime: {
+            lte: data.endTime,
+          },
+          endTime: {
+            gte: data.startTime,
+          },
+        },
+        {
+          startTime: {
+            gte: data.startTime,
+            lte: data.endTime,
+          },
+          endTime: {
+            gte: data.startTime,
+            lte: data.endTime,
+          },
+        },
+      ],
+    },
+  });
+
+  if (overlappingAvailability) {
+    const error = new Error("Unauthorized to create appointment");
+    error.statusCode = 401; // Unauthorized
+    throw error;
+  }
+
+  await prisma.availability.create({
+    data: {
+      ...data,
+      memberId,
+    },
+  });
+
+  return "Disponibilité créée avec succès";
+};
+
 exports.createSpecialAvailability = async (id, role, data) => {
-  const ref =
-    role === "USER"
-      ? "providerId"
-      : "SALON"
-      ? "salonId"
-      : "MEMBER"
-      ? "memberId"
-      : null;
+  const ref = role === "USER" ? "providerId" : "SALON" ? "salonId" : null;
   const overlappingSpecialAvailability =
     await prisma.specialAvailability.findFirst({
       where: {
@@ -105,6 +135,51 @@ exports.createSpecialAvailability = async (id, role, data) => {
     data: {
       ...data,
       [ref]: id,
+    },
+  });
+
+  return "Disponibilité spéciale créée avec succès";
+};
+
+exports.createSpecialMemberAvailability = async (memberId, data) => {
+  const overlappingSpecialAvailability =
+    await prisma.specialAvailability.findFirst({
+      where: {
+        memberId,
+        date: data.date,
+        OR: [
+          {
+            startTime: {
+              lte: data.endTime,
+            },
+            endTime: {
+              gte: data.startTime,
+            },
+          },
+          {
+            startTime: {
+              gte: data.startTime,
+              lte: data.endTime,
+            },
+            endTime: {
+              gte: data.startTime,
+              lte: data.endTime,
+            },
+          },
+        ],
+      },
+    });
+
+  if (overlappingSpecialAvailability) {
+    const error = new Error("Unauthorized to create appointment");
+    error.statusCode = 401; // Unauthorized
+    throw error;
+  }
+
+  await prisma.specialAvailability.create({
+    data: {
+      ...data,
+      memberId,
     },
   });
 
@@ -178,6 +253,29 @@ exports.getAvailabilities = async (id) => {
   ]);
 
   return { availabilities, specialAvailabilities };
+};
+
+exports.getMemberAvailabilities = async (memberId) => {
+  try {
+    const [availabilities, specialAvailabilities] = await prisma.$transaction([
+      prisma.availability.findMany({
+        where: {
+          memberId,
+        },
+      }),
+      prisma.specialAvailability.findMany({
+        where: {
+          memberId,
+          date: {
+            gte: DateTime.now().toISODate(),
+          },
+        },
+      }),
+    ]);
+    return { availabilities, specialAvailabilities };
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.updateAvailability = async (id, availabilityId, data) => {

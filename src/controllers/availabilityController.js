@@ -14,6 +14,19 @@ exports.createAvailability = async (req, res) => {
   }
 };
 
+exports.createMemberAvailability = async (req, res) => {
+  try {
+    const memberId = req.params.id;
+    const availability = await availabilityService.createMemberAvailability(
+      memberId,
+      req.body
+    );
+    return res.status(201).json(availability);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
 exports.createSpecialAvailability = async (req, res) => {
   try {
     const { id, role } = req.user;
@@ -26,7 +39,21 @@ exports.createSpecialAvailability = async (req, res) => {
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};
+
+exports.createSpecialMemberAvailability = async (req, res) => {
+  try {
+    const memberId = req.params.id;
+    const availability =
+      await availabilityService.createSpecialMemberAvailability(
+        memberId,
+        req.body
+      );
+    return res.status(201).json(availability);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
 
 exports.getAvailableTimeSlots = async (req, res) => {
   try {
@@ -47,6 +74,18 @@ exports.getAvailabilities = async (req, res) => {
   try {
     const { id } = req.user;
     const availabilities = await availabilityService.getAvailabilities(id);
+    res.json(availabilities);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.getMemberAvailabilities = async (req, res) => {
+  try {
+    const memberId = req.params.id;
+    const availabilities = await availabilityService.getMemberAvailabilities(
+      memberId
+    );
     res.json(availabilities);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
@@ -79,13 +118,16 @@ exports.deleteAvailability = async (req, res) => {
   }
 };
 
-exports.deleteSpecialAvailability = async (req, res) => { 
+exports.deleteSpecialAvailability = async (req, res) => {
   try {
     const providerId = req.user.id;
     const { availabilityId } = req.params;
-    await availabilityService.deleteSpecialAvailability(providerId, availabilityId);
+    await availabilityService.deleteSpecialAvailability(
+      providerId,
+      availabilityId
+    );
     return res.status(204).end();
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};

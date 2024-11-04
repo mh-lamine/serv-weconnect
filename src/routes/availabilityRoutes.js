@@ -4,9 +4,24 @@ const availabilityController = require("../controllers/availabilityController");
 const jwt = require("../utils/middleware");
 
 router.post("/", jwt.verifyToken, availabilityController.createAvailability);
-router.post("/special", jwt.verifyToken, availabilityController.createSpecialAvailability);
+router.post("/member/:id", jwt.verifyToken, availabilityController.createMemberAvailability);
+router.post(
+  "/special",
+  jwt.verifyToken,
+  availabilityController.createSpecialAvailability
+);
+router.post(
+  "/special/member/:id",
+  jwt.verifyToken,
+  availabilityController.createSpecialMemberAvailability
+);
 router.post("/:id", availabilityController.getAvailableTimeSlots);
 router.get("/", jwt.verifyToken, availabilityController.getAvailabilities);
+router.get(
+  "/member/:id",
+  jwt.verifyToken,
+  availabilityController.getMemberAvailabilities
+);
 router.patch(
   "/:availabilityId",
   jwt.verifyToken,
