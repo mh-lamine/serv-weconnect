@@ -16,6 +16,7 @@ router.post(
   availabilityController.createSpecialMemberAvailability
 );
 router.post("/:id", availabilityController.getAvailableTimeSlots);
+router.post("/salon/:id", availabilityController.getSalonAvailableTimeSlots);
 router.get("/", jwt.verifyToken, availabilityController.getAvailabilities);
 router.get(
   "/member/:id",

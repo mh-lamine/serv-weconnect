@@ -51,7 +51,7 @@ exports.createAvailability = async (id, role, data) => {
   return "Disponibilité créée avec succès";
 };
 
-exports.createMemberAvailability = async (memberId, data) => {
+exports.createMemberAvailability = async (memberId, salonId, data) => {
   const overlappingAvailability = await prisma.availability.findFirst({
     where: {
       memberId,
@@ -89,6 +89,7 @@ exports.createMemberAvailability = async (memberId, data) => {
     data: {
       ...data,
       memberId,
+      salonId,
     },
   });
 
@@ -141,7 +142,7 @@ exports.createSpecialAvailability = async (id, role, data) => {
   return "Disponibilité spéciale créée avec succès";
 };
 
-exports.createSpecialMemberAvailability = async (memberId, data) => {
+exports.createSpecialMemberAvailability = async (memberId, salonId, data) => {
   const overlappingSpecialAvailability =
     await prisma.specialAvailability.findFirst({
       where: {
@@ -180,6 +181,7 @@ exports.createSpecialMemberAvailability = async (memberId, data) => {
     data: {
       ...data,
       memberId,
+      salonId,
     },
   });
 
@@ -192,7 +194,7 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
 
   const specialDayAvailabilities = await prisma.specialAvailability.findMany({
     where: {
-      OR: [{ providerId: id }, { salonId: id }],
+      providerId: id,
       date: dateTime.toISODate(),
     },
   });
@@ -202,7 +204,7 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
       ? specialDayAvailabilities
       : await prisma.availability.findMany({
           where: {
-            OR: [{ providerId: id }, { salonId: id }],
+            providerId: id,
             dayOfWeek,
           },
         });
@@ -212,7 +214,7 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
       status: {
         in: ["PENDING", "ACCEPTED"],
       },
-      OR: [{ providerId: id }, { salonId: id }],
+      providerId: id,
       date: {
         startsWith: dateTime.toISODate(),
       },
@@ -235,12 +237,79 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   return availableSlots;
 };
 
+exports.getSalonAvailableTimeSlots = async (salonId, date, serviceDuration) => {
+  const dateTime = DateTime.fromISO(date).setLocale("en");
+  const dayOfWeek = dateTime.weekdayLong.toUpperCase();
+
+  // Récupération des membres du salon
+  const salonMembers = await prisma.member.findMany({
+    where: {
+      salonId: salonId,
+    },
+    include: {
+      availabilities: {
+        where: { dayOfWeek },
+      },
+      specialAvailabilities: {
+        where: { date: dateTime.toISODate() },
+      },
+      appointments: {
+        where: {
+          status: { in: ["PENDING", "ACCEPTED"] },
+          date: { startsWith: dateTime.toISODate() },
+        },
+      },
+    },
+  });
+
+  // Parcours de chaque membre pour récupérer les créneaux disponibles
+  let salonAvailableSlots = [];
+
+  salonMembers.forEach((member) => {
+    const availabilities =
+      member.specialAvailabilities.length > 0
+        ? member.specialAvailabilities
+        : member.availabilities;
+
+    // Trier les disponibilités par heure de début
+    availabilities.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+    // Générer les créneaux disponibles en excluant les rendez-vous déjà pris
+    let memberSlots = [];
+    availabilities.forEach((availability) => {
+      const availableRanges = generateAvailableRanges(
+        availability,
+        member.appointments
+      );
+      availableRanges.forEach((range) => {
+        memberSlots = memberSlots.concat(
+          generateTimeSlots(range.start, range.end, serviceDuration, date)
+        );
+      });
+    });
+
+    // Ajouter les créneaux de chaque membre au tableau du salon
+    salonAvailableSlots.push({
+      memberId: member.id,
+      memberName: `${member.firstName} ${member.lastName}`,
+      availableSlots: memberSlots,
+    });
+  });
+
+  return salonAvailableSlots;
+};
+
 exports.getAvailabilities = async (id) => {
   const [availabilities, specialAvailabilities] = await prisma.$transaction([
     prisma.availability.findMany({
       where: {
         OR: [{ providerId: id }, { salonId: id }],
       },
+      orderBy: [
+        {
+          startTime: "asc",
+        },
+      ],
     }),
     prisma.specialAvailability.findMany({
       where: {
@@ -249,6 +318,11 @@ exports.getAvailabilities = async (id) => {
           gte: DateTime.now().toISODate(),
         },
       },
+      orderBy: [
+        {
+          startTime: "asc",
+        },
+      ],
     }),
   ]);
 
@@ -262,6 +336,11 @@ exports.getMemberAvailabilities = async (memberId) => {
         where: {
           memberId,
         },
+        orderBy: [
+          {
+            startTime: "asc",
+          },
+        ],
       }),
       prisma.specialAvailability.findMany({
         where: {
@@ -270,6 +349,11 @@ exports.getMemberAvailabilities = async (memberId) => {
             gte: DateTime.now().toISODate(),
           },
         },
+        orderBy: [
+          {
+            startTime: "asc",
+          },
+        ],
       }),
     ]);
     return { availabilities, specialAvailabilities };

@@ -17,8 +17,10 @@ exports.createAvailability = async (req, res) => {
 exports.createMemberAvailability = async (req, res) => {
   try {
     const memberId = req.params.id;
+    const salonId = req.user.id;
     const availability = await availabilityService.createMemberAvailability(
       memberId,
+      salonId,
       req.body
     );
     return res.status(201).json(availability);
@@ -44,9 +46,11 @@ exports.createSpecialAvailability = async (req, res) => {
 exports.createSpecialMemberAvailability = async (req, res) => {
   try {
     const memberId = req.params.id;
+    const salonId = req.user.id;
     const availability =
       await availabilityService.createSpecialMemberAvailability(
         memberId,
+        salonId,
         req.body
       );
     return res.status(201).json(availability);
@@ -60,6 +64,21 @@ exports.getAvailableTimeSlots = async (req, res) => {
     const { id } = req.params;
     const { date, serviceDuration } = req.body;
     const availability = await availabilityService.getAvailableTimeSlots(
+      id,
+      date,
+      serviceDuration
+    );
+    return res.json(availability);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.getSalonAvailableTimeSlots = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, serviceDuration } = req.body;
+    const availability = await availabilityService.getSalonAvailableTimeSlots(
       id,
       date,
       serviceDuration
@@ -109,9 +128,9 @@ exports.updateAvailability = async (req, res) => {
 
 exports.deleteAvailability = async (req, res) => {
   try {
-    const providerId = req.user.id;
+    const { id } = req.user;
     const { availabilityId } = req.params;
-    await availabilityService.deleteAvailability(providerId, availabilityId);
+    await availabilityService.deleteAvailability(id, availabilityId);
     return res.status(204).end();
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
