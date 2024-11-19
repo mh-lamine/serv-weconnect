@@ -28,7 +28,7 @@ exports.getMember = async (req, res) => {
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};
 
 exports.updateMember = async (req, res) => {
   try {
@@ -38,7 +38,7 @@ exports.updateMember = async (req, res) => {
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};
 
 exports.addMember = async (req, res) => {
   try {
@@ -55,6 +55,21 @@ exports.updateSalon = async (req, res) => {
     const { id } = req.user;
     const salon = await salonService.updateSalon(id, req.body);
     return res.json(salon);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.assignServices = async (req, res) => {
+  try {
+    const salonId = req.user.id;
+    const memberId = req.params.id;
+    const member = await salonService.assignServices(
+      salonId,
+      memberId,
+      req.body
+    );
+    return res.json(member);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }

@@ -15,7 +15,10 @@ exports.getMembers = async (id) => {
 };
 
 exports.getMember = async (salonId, memberId) => {
-  return await prisma.member.findUnique({ where: { id: memberId, salonId } });
+  return await prisma.member.findUnique({
+    where: { id: memberId, salonId },
+    include: { services: true },
+  });
 };
 
 exports.updateMember = async (salonId, memberId, data) => {
@@ -34,6 +37,20 @@ exports.addMember = async (id, data) => {
 
 exports.updateSalon = async (id, data) => {
   return await prisma.salon.update({ where: { id }, data: { ...data } });
+};
+
+exports.assignServices = async (salonId, memberId, services) => {
+  return await prisma.member.update({
+    where: {
+      id: memberId,
+      salonId,
+    },
+    data: {
+      services: {
+        set: services.map((service) => ({ id: service })),
+      },
+    },
+  });
 };
 
 exports.removeMember = async (salonId, memberId) => {
