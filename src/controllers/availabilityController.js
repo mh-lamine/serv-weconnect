@@ -77,11 +77,11 @@ exports.getAvailableTimeSlots = async (req, res) => {
 exports.getSalonAvailableTimeSlots = async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, serviceDuration } = req.body;
+    const { date, service } = req.body;
     const availability = await availabilityService.getSalonAvailableTimeSlots(
       id,
       date,
-      serviceDuration
+      service
     );
     return res.json(availability);
   } catch (error) {

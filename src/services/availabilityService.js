@@ -237,14 +237,20 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   return availableSlots;
 };
 
-exports.getSalonAvailableTimeSlots = async (salonId, date, serviceDuration) => {
+exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
   const dateTime = DateTime.fromISO(date).setLocale("en");
   const dayOfWeek = dateTime.weekdayLong.toUpperCase();
+  const { id: serviceId, duration: serviceDuration } = service;
 
   // Récupération des membres du salon
   const salonMembers = await prisma.member.findMany({
     where: {
       salonId: salonId,
+      services: {
+        some: {
+          id: serviceId,
+        },
+      },
     },
     include: {
       availabilities: {
