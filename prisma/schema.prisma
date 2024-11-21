@@ -81,6 +81,7 @@ model Member {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   role      Role      @default(MEMBER)
+  refreshToken RefreshToken?
 
   salonId String
   salon   Salon  @relation(fields: [salonId], references: [id], onDelete: Cascade)
@@ -89,7 +90,7 @@ model Member {
   availabilities Availability[]
   specialAvailabilities SpecialAvailability[]
   unavailabilities Unavailability[]
-  services ProviderService[]
+  services ProviderService[] @relation("memberServices")
 }
 
 model Availability {
@@ -192,7 +193,7 @@ model ProviderService {
   appointments      Appointment[]
   reviews           Review[]
   availabilities     Availability[]
-  member            Member[]
+  member            Member[] @relation("memberServices")
 }
 
 model Review {
@@ -212,8 +213,10 @@ model RefreshToken {
   createdAt DateTime @default(now())
   userId    String?   @unique
   salonId   String?   @unique
+  memberId String?   @unique
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   salon     Salon?   @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  member    Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade)
 }
 
 enum AppointmentStatus {

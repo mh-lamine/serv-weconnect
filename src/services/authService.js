@@ -174,6 +174,41 @@ exports.loginSalon = async (email, password) => {
   return { salon, accessToken, refreshToken };
 };
 
+exports.loginMember = async (email, password) => {
+  const { members } = await prisma.salon.findFirst({
+    where: { email },
+    include: { members: true },
+  });
+
+  const member = members.find((member) => member.accessCode === password);
+
+  if (!member) {
+    const error = new Error("Invalid credentials");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // Generate tokens
+  const accessToken = jwt.sign(
+    { id: member.id, role: member.role },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "30m" }
+  );
+  const refreshToken = jwt.sign(
+    { id: member.id, role: member.role },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  // update refresh token in database
+  await prisma.refreshToken.update({
+    where: { memberId: member.id },
+    data: { token: refreshToken },
+  });
+
+  return { member, accessToken, refreshToken };
+};
+
 exports.refreshToken = async (refreshToken) => {
   const userToken = await prisma.refreshToken.findFirst({
     where: { token: refreshToken },

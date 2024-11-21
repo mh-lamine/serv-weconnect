@@ -32,7 +32,13 @@ exports.updateMember = async (salonId, memberId, data) => {
 };
 
 exports.addMember = async (id, data) => {
-  return await prisma.member.create({ data: { ...data, salonId: id } });
+  const newMember = await prisma.member.create({
+    data: { ...data, salonId: id },
+  });
+
+  await prisma.refreshToken.create({
+    data: { token: null, memberId: newMember.id },
+  });
 };
 
 exports.updateSalon = async (id, data) => {

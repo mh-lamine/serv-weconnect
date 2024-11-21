@@ -84,6 +84,28 @@ exports.loginSalon = async (req, res) => {
   }
 };
 
+exports.loginMember = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const { member, accessToken, refreshToken } =
+      await authService.loginMember(email, password);
+    return res
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 24,
+        domain: ".weconnect-rdv.fr",
+      })
+      .json({ ...member, accessToken });
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+}
+
 exports.refreshToken = async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.refreshToken) {
