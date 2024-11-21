@@ -31,12 +31,23 @@ exports.getAppointmentsAsProvider = async (req, res) => {
   }
 };
 
+exports.getAppointmentsAsMember = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const appointments = await appointmentService.getAppointmentsAsMember(id);
+    return res.status(201).json(appointments);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+}
+
 exports.updateAppointment = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const {id: userId, role} = req.user;
     const { appointmentId } = req.params;
     const appointment = await appointmentService.updateAppointment(
       userId,
+      role,
       appointmentId,
       req.body
     );

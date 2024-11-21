@@ -14,6 +14,11 @@ router.get(
   jwt.verifyToken,
   appointmentController.getAppointmentsAsProvider
 );
+router.get(
+  "/member",
+  jwt.verifyToken,
+  appointmentController.getAppointmentsAsMember
+);
 router.patch(
   "/:appointmentId",
   jwt.verifyToken,

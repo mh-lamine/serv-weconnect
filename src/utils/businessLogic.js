@@ -133,7 +133,12 @@ exports.updateAppointmentsStatuses = async (id) => {
 
   const ongoingAppointments = await prisma.appointment.findMany({
     where: {
-      OR: [{ clientId: id }, { providerId: id }, { salonId: id }],
+      OR: [
+        { clientId: id },
+        { providerId: id },
+        { salonId: id },
+        { memberId: id },
+      ],
       status: "ACCEPTED",
       date: {
         lte: now,

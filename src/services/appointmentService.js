@@ -131,8 +131,71 @@ exports.getAppointmentsAsProvider = async (id) => {
 
   return { futureAppointments, todaysAppointments, missedAppointments };
 };
+exports.getAppointmentsAsMember = async (id) => {
+  const now = DateTime.now().toISO();
 
-exports.updateAppointment = async (userId, appointmentId, data) => {
+  await updateAppointmentsStatuses(id);
+
+  const futureAppointments = await prisma.appointment.findMany({
+    where: {
+      memberId: id,
+      status: {
+        in: ["PENDING", "ACCEPTED"],
+      },
+      date: {
+        gte: now,
+      },
+    },
+    include: {
+      client: true,
+      service: true,
+      member: true,
+    },
+  });
+
+  const today = DateTime.now().toISODate();
+  const todaysAppointments = await prisma.appointment.findMany({
+    where: {
+      memberId: id,
+      date: {
+        startsWith: today,
+      },
+      status: {
+        in: ["ACCEPTED", "COMPLETED"],
+      },
+    },
+    include: {
+      client: true,
+      service: true,
+      member: true,
+    },
+  });
+
+  const missedAppointments = await prisma.appointment.findMany({
+    where: {
+      memberId: id,
+      date: { lt: now },
+      status: "PENDING",
+    },
+    include: {
+      client: true,
+      service: true,
+      member: true,
+    },
+  });
+
+  return { futureAppointments, todaysAppointments, missedAppointments };
+};
+
+exports.updateAppointment = async (userId, role, appointmentId, data) => {
+  const allowedRoles = ["USER", "SALON"];
+
+  if (!allowedRoles.includes(role)) {
+    const error = new Error("Unauthorized to update appointment");
+    error.statusCode = 403; // Forbidden
+    throw error;
+  }
+  
   try {
     const appointment = await prisma.appointment.update({
       where: {
