@@ -59,6 +59,20 @@ exports.createSpecialMemberAvailability = async (req, res) => {
   }
 };
 
+exports.createUnavailability = async (req, res) => {
+  try {
+    const { id, role } = req.user;
+    const unavailability = await availabilityService.createUnavailability(
+      id,
+      role,
+      req.body
+    );
+    return res.status(201).json(unavailability);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
 exports.getAvailableTimeSlots = async (req, res) => {
   try {
     const { id } = req.params;
@@ -150,3 +164,14 @@ exports.deleteSpecialAvailability = async (req, res) => {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
+exports.deleteUnavailability = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const { unavailabilityId } = req.params;
+    await availabilityService.deleteUnavailability(id, unavailabilityId);
+    return res.status(204).end();
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+}

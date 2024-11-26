@@ -4,6 +4,7 @@ const { DateTime } = require("luxon");
 const {
   generateAvailableRanges,
   generateTimeSlots,
+  adjustAvailableRangesWithUnavailability,
 } = require("../utils/businessLogic");
 
 exports.createAvailability = async (id, role, data) => {
@@ -188,6 +189,50 @@ exports.createSpecialMemberAvailability = async (memberId, salonId, data) => {
   return "Disponibilité spéciale créée avec succès";
 };
 
+exports.createUnavailability = async (id, role, data) => {
+  const ref = role === "USER" ? "providerId" : "SALON" ? "salonId" : null;
+  const overlappingUnavailability = await prisma.unavailability.findFirst({
+    where: {
+      [ref]: id,
+      OR: [
+        {
+          startTime: {
+            lte: data.endTime,
+          },
+          endTime: {
+            gte: data.startTime,
+          },
+        },
+        {
+          startTime: {
+            gte: data.startTime,
+            lte: data.endTime,
+          },
+          endTime: {
+            gte: data.startTime,
+            lte: data.endTime,
+          },
+        },
+      ],
+    },
+  });
+
+  if (overlappingUnavailability) {
+    const error = new Error("Unauthorized to create appointment");
+    error.statusCode = 401; // Unauthorized
+    throw error;
+  }
+
+  await prisma.unavailability.create({
+    data: {
+      ...data,
+      [ref]: id,
+    },
+  });
+
+  return "Indisponibilité créée avec succès";
+};
+
 exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
   const dateTime = DateTime.fromISO(date).setLocale("en");
   const dayOfWeek = dateTime.weekdayLong.toUpperCase();
@@ -268,6 +313,13 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
     },
   });
 
+  const unavailabilities = await prisma.unavailability.findMany({
+    where: {
+      salonId,
+      date,
+    },
+  });
+
   // Parcours de chaque membre pour récupérer les créneaux disponibles
   let salonAvailableSlots = [];
 
@@ -287,7 +339,13 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
         availability,
         member.appointments
       );
-      availableRanges.forEach((range) => {
+
+      const adjustedRanges = adjustAvailableRangesWithUnavailability(
+        availableRanges,
+        unavailabilities
+      );
+
+      adjustedRanges.forEach((range) => {
         memberSlots = memberSlots.concat(
           generateTimeSlots(range.start, range.end, serviceDuration, date)
         );
@@ -306,33 +364,47 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
 };
 
 exports.getAvailabilities = async (id) => {
-  const [availabilities, specialAvailabilities] = await prisma.$transaction([
-    prisma.availability.findMany({
-      where: {
-        OR: [{ providerId: id }, { salonId: id }],
-      },
-      orderBy: [
-        {
-          startTime: "asc",
+  const [availabilities, specialAvailabilities, unavailabilities] =
+    await prisma.$transaction([
+      prisma.availability.findMany({
+        where: {
+          OR: [{ providerId: id }, { salonId: id }],
         },
-      ],
-    }),
-    prisma.specialAvailability.findMany({
-      where: {
-        OR: [{ providerId: id }, { salonId: id }],
-        date: {
-          gte: DateTime.now().toISODate(),
+        orderBy: [
+          {
+            startTime: "asc",
+          },
+        ],
+      }),
+      prisma.specialAvailability.findMany({
+        where: {
+          OR: [{ providerId: id }, { salonId: id }],
+          date: {
+            gte: DateTime.now().toISODate(),
+          },
         },
-      },
-      orderBy: [
-        {
-          startTime: "asc",
+        orderBy: [
+          {
+            startTime: "asc",
+          },
+        ],
+      }),
+      prisma.unavailability.findMany({
+        where: {
+          OR: [{ providerId: id }, { salonId: id }],
+          date: {
+            gte: DateTime.now().toISOTime(),
+          },
         },
-      ],
-    }),
-  ]);
+        orderBy: [
+          {
+            startTime: "asc",
+          },
+        ],
+      }),
+    ]);
 
-  return { availabilities, specialAvailabilities };
+  return { availabilities, specialAvailabilities, unavailabilities };
 };
 
 exports.getMemberAvailabilities = async (memberId) => {
@@ -400,6 +472,19 @@ exports.deleteSpecialAvailability = async (id, availabilityId) => {
     await prisma.specialAvailability.delete({
       where: {
         id: availabilityId,
+        OR: [{ providerId: id }, { salonId: id }],
+      },
+    });
+  } catch (error) {
+    throw new Error("Unauthorized");
+  }
+};
+
+exports.deleteUnavailability = async (id, unavailabilityId) => {
+  try {
+    await prisma.unavailability.delete({
+      where: {
+        id: unavailabilityId,
         OR: [{ providerId: id }, { salonId: id }],
       },
     });

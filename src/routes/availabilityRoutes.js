@@ -15,6 +15,8 @@ router.post(
   jwt.verifyToken,
   availabilityController.createSpecialMemberAvailability
 );
+router.post("/unavailability", jwt.verifyToken, availabilityController.createUnavailability);
+
 router.post("/:id", availabilityController.getAvailableTimeSlots);
 router.post("/salon/:id", availabilityController.getSalonAvailableTimeSlots);
 router.get("/", jwt.verifyToken, availabilityController.getAvailabilities);
@@ -38,5 +40,6 @@ router.delete(
   jwt.verifyToken,
   availabilityController.deleteSpecialAvailability
 );
+router.delete("/unavailability/:unavailabilityId", jwt.verifyToken, availabilityController.deleteUnavailability);
 
 module.exports = router;
