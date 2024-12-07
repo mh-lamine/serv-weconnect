@@ -1,0 +1,1 @@
+import{j as t,I as m}from"./index-CZTxtg5E.js";import{L as p}from"./label-ladyaj3b.js";const x=({id:s,name:e="",label:n,type:a,defaultValue:l,placeholder:r=null,handleChange:o,disabled:i=!1})=>t.jsxs("div",{children:[t.jsx(p,{htmlFor:s,children:n}),t.jsx(m,{id:s,type:a,name:e,defaultValue:l,placeholder:r,onChange:o,disabled:i,className:"text-lg"})]}),j=x;export{j as E};
