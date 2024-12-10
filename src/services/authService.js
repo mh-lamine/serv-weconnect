@@ -223,10 +223,10 @@ exports.refreshToken = async (refreshToken) => {
       where: { id: userToken.userId || undefined },
     }),
     prisma.salon.findFirst({
-      where: { id: userToken.salonId || undefined },
+      where: { id: userToken.userId || undefined },
     }),
     prisma.member.findFirst({
-      where: { id: userToken.memberId || undefined },
+      where: { id: userToken.userId || undefined },
     }),
   ]);
 
