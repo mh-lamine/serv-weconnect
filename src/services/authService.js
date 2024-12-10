@@ -213,17 +213,20 @@ exports.refreshToken = async (refreshToken) => {
   const userToken = await prisma.refreshToken.findFirst({
     where: { token: refreshToken },
   });
-  if (!userToken) return res.sendStatus(403);
+
+  if (!userToken) {
+    throw new Error("Token non valide ou expiré.");
+  }
 
   const [table1, table2, table3] = await prisma.$transaction([
     prisma.user.findFirst({
-      where: { id: userToken.userId },
+      where: { id: userToken.userId || undefined },
     }),
     prisma.salon.findFirst({
-      where: { id: userToken.salonId },
+      where: { id: userToken.salonId || undefined },
     }),
     prisma.member.findFirst({
-      where: { id: userToken.memberId },
+      where: { id: userToken.memberId || undefined },
     }),
   ]);
 
