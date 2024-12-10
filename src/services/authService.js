@@ -220,10 +220,10 @@ exports.refreshToken = async (refreshToken) => {
       where: { id: userToken.userId },
     }),
     prisma.salon.findFirst({
-      where: { id: userToken.userId },
+      where: { id: userToken.salonId },
     }),
     prisma.member.findFirst({
-      where: { id: userToken.userId },
+      where: { id: userToken.memberId },
     }),
   ]);
 
