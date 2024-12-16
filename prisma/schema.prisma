@@ -42,6 +42,10 @@ model User {
   tags                   Tags[]
 }
 
+model Provider {
+  id                     String   @id @default(cuid())
+}
+
 model Salon {
   id              String   @id @default(cuid())
   name            String
