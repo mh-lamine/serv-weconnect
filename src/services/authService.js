@@ -132,6 +132,48 @@ exports.loginUser = async (phoneNumber, password) => {
   return { user, accessToken, refreshToken };
 };
 
+exports.loginUser = async (phoneNumber, password) => {
+  // Check if user exists
+  const user = await prisma.user.findFirst({
+    where: { phoneNumber },
+  });
+
+  if (!user) {
+    const error = new Error("Invalid credentials");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // Compare passwords
+  const validPassword = await bcrypt.compare(password, user.password);
+
+  if (!validPassword) {
+    const error = new Error("Invalid credentials");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // Generate tokens
+  const accessToken = jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "30m" }
+  );
+  const refreshToken = jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  // update refresh token in database
+  await prisma.refreshToken.update({
+    where: { userId: user.id },
+    data: { token: refreshToken },
+  });
+
+  return { user, accessToken, refreshToken };
+};
+
 exports.loginSalon = async (email, password) => {
   // Check if salon exists
   const salon = await prisma.salon.findFirst({

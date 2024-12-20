@@ -52,7 +52,31 @@ exports.loginUser = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        domain: ".weconnect-rdv.fr",
+        domain: "www.weconnect-rdv.fr",
+      })
+      .json({ ...user, accessToken });
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.loginPro = async (req, res) => {
+  try {
+    const { phoneNumber, password } = req.body;
+    if (!phoneNumber || !password) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const { user, accessToken, refreshToken } = await authService.loginPro(
+      phoneNumber,
+      password
+    );
+    return res
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 24,
+        domain: "pro.weconnect-rdv.fr",
       })
       .json({ ...user, accessToken });
   } catch (error) {
