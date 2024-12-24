@@ -17,7 +17,7 @@ async function migrateProviders() {
           phoneNumber: user.phoneNumber,
           contactMethods: user.contactMethods,
           password: user.password,
-          providerName: user.providerName,
+          name: user.providerName,
           bookingTerms: user.bookingTerms,
           isFreeTrial: user.isFreeTrial,
           daysLeftInTrial: user.daysLeftInTrial,
@@ -34,35 +34,35 @@ async function migrateProviders() {
       // Migrer les appointements
       await client.appointment.updateMany({
         where: { providerId: user.id },
-        data: { providerId: newProvider.id },
+        data: { proId: newProvider.id },
       });
 
       // Migrer les catégories
       await client.providerCategory.updateMany({
         where: { providerId: user.id },
-        data: { providerId: newProvider.id },
+        data: { proId: newProvider.id },
       });
 
       // Migrer les services
       await client.providerService.updateMany({
         where: { providerId: user.id },
-        data: { providerId: newProvider.id },
+        data: { proId: newProvider.id },
       });
 
       // Migrer les disponibilités
       await client.availability.updateMany({
         where: { providerId: user.id },
-        data: { providerId: newProvider.id },
+        data: { proId: newProvider.id },
       });
 
       await client.specialAvailability.updateMany({
         where: { providerId: user.id },
-        data: { providerId: newProvider.id },
+        data: { proId: newProvider.id },
       });
 
       await client.unavailability.updateMany({
         where: { providerId: user.id },
-        data: { providerId: newProvider.id },
+        data: { proId: newProvider.id },
       });
 
       console.log(`Utilisateur avec l'ID ${user.id} migré.`);
