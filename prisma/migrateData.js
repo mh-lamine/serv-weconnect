@@ -11,9 +11,10 @@ async function migrateProviders() {
 
     for (const user of users) {
       // Créer un nouveau Provider
-      const newProvider = await client.provider.create({
+      const newProvider = await client.pro.create({
         data: {
           address: user.address,
+          email: user.email,
           phoneNumber: user.phoneNumber,
           contactMethods: user.contactMethods,
           password: user.password,
