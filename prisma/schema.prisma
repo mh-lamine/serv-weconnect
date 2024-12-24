@@ -42,8 +42,34 @@ model User {
   tags                   Tags[]
 }
 
-model Provider {
+model Pro {
   id                     String   @id @default(cuid())
+  name                   String?
+  email                  String   @unique
+  password               String
+  phoneNumber            String?   @unique
+  contactMethods         Json?
+  address                String?
+  profilePicture         String?
+  coverImage             String?
+  bookingTerms           String?
+  isFreeTrial            Boolean  @default(false)
+  daysLeftInTrial        Int      @default(0)
+  plan                   Plan     @default(NONE)
+  isInVacancyMode        Boolean  @default(false)
+  autoAcceptAppointments Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  refreshToken           RefreshToken?
+  role                   Role     @default(PRO)
+
+  appointments           Appointment[]
+  providerCategories     ProviderCategory[]
+  providerServices       ProviderService[]
+  availabilities         Availability[]
+  specialAvailabilities  SpecialAvailability[]
+  unavailabilities       Unavailability[]
+  tags                   Tags[]
 }
 
 model Salon {
@@ -104,10 +130,12 @@ model Availability {
   endTime   String
 
   providerId String?
+  proId String?
   salonId  String?
   memberId  String?
   serviceId String?
   provider   User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
   salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
   member     Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
   service    ProviderService? @relation(fields: [serviceId], references: [id])
@@ -120,9 +148,11 @@ model SpecialAvailability {
   endTime   String
 
   providerId String?
+  proId String?
   salonId  String?
   memberId  String?
   provider   User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
   salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
   member     Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
 }
@@ -134,9 +164,11 @@ model Unavailability {
   endTime   String
 
   providerId String?
+  proId String?
   salonId  String?
   memberId  String?
   provider   User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
   salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
   member     Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
 }
@@ -151,11 +183,13 @@ model Appointment {
   updatedAt DateTime          @updatedAt
 
   providerId String?
+  proId String?
   salonId    String?
   memberId   String?
   clientId   String
   serviceId  String
   provider   User?   @relation("provider", fields: [providerId], references: [id], onDelete: Cascade)
+  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
   salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
   member     Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
   client     User   @relation("client", fields: [clientId], references: [id], onDelete: Cascade)
@@ -166,6 +200,7 @@ model Tags {
   id   String @id @default(cuid())
   name String
   users User[]
+  pros Pro[]
   salons Salon[]
 }
 
@@ -174,8 +209,10 @@ model ProviderCategory {
   name        String
   isActive    Boolean  @default(false)
   providerId  String?
+  proId  String?  
   salonId     String?
   provider    User?     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  pro    Pro?     @relation(fields: [proId], references: [id], onDelete: Cascade)
   salon       Salon?    @relation(fields: [salonId], references: [id], onDelete: Cascade)
   services    ProviderService[]
 }
@@ -189,9 +226,11 @@ model ProviderService {
   description       String?
   isActive          Boolean  @default(true)
   providerId        String?
+  proId        String?
   salonId           String?
   providerCategoryId String
   provider          User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  pro          Pro?   @relation(fields: [proId], references: [id], onDelete: Cascade)
   salon             Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
   providerCategory  ProviderCategory @relation(fields: [providerCategoryId], references: [id], onDelete: Cascade)
   appointments      Appointment[]
@@ -216,9 +255,11 @@ model RefreshToken {
   token     String?  @unique
   createdAt DateTime @default(now())
   userId    String?   @unique
+  proId    String?   @unique
   salonId   String?   @unique
   memberId String?   @unique
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pro  Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
   salon     Salon?   @relation(fields: [salonId], references: [id], onDelete: Cascade)
   member    Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade)
 }
@@ -249,6 +290,7 @@ enum Plan {
 
 enum Role {
   USER
+  PRO
   SALON
   MEMBER
 }
