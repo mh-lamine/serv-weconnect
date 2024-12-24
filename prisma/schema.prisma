@@ -59,7 +59,7 @@ model Pro {
   autoAcceptAppointments Boolean               @default(false)
   createdAt              DateTime              @default(now())
   updatedAt              DateTime              @updatedAt
-  role                   Role                  @default(USER)
+  role                   Role                  @default(PRO)
   appointments           Appointment[]
   availabilities         Availability[]
   providerCategories     ProviderCategory[]

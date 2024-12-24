@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Pro" ALTER COLUMN "role" SET DEFAULT 'PRO';
