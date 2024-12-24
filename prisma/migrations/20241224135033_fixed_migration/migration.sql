@@ -51,7 +51,7 @@ CREATE TABLE "Pro" (
     "autoAcceptAppointments" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'PRO',
+    "role" "Role" NOT NULL DEFAULT 'USER',
 
     CONSTRAINT "Pro_pkey" PRIMARY KEY ("id")
 );

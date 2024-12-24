@@ -282,6 +282,7 @@ enum Plan {
 
 enum Role {
   USER
+  PRO
   SALON
   MEMBER
 }
