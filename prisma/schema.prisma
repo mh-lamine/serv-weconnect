@@ -3,265 +3,256 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_URL")
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
 }
 
 model User {
-  id                     String   @id @default(cuid())
-  email                  String?   @unique
+  id                     String                @id @default(cuid())
+  email                  String?               @unique
   password               String
-  phoneNumber            String   @unique
-  contactMethods         Json?
+  phoneNumber            String                @unique
   address                String?
-  profilePicture         String?
-  coverImage             String?
-  bookingTerms           String?
-  isProvider             Boolean  @default(false)
-  isFreeTrial            Boolean  @default(false)
-  daysLeftInTrial        Int      @default(0)
-  plan                   Plan     @default(NONE)
-  isInVacancyMode        Boolean  @default(false)
-  autoAcceptAppointments Boolean  @default(false)
+  isProvider             Boolean               @default(false)
+  isInVacancyMode        Boolean               @default(false)
+  autoAcceptAppointments Boolean               @default(false)
   firstName              String?
   lastName               String?
   providerName           String?
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-  refreshToken           RefreshToken?
-  role                   Role     @default(USER)
-
-  appointmentsAsProvider Appointment[]     @relation("provider")
-  appointmentsAsClient   Appointment[]     @relation("client")
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  profilePicture         String?
+  bookingTerms           String?
+  coverImage             String?
+  contactMethods         Json?
+  daysLeftInTrial        Int                   @default(0)
+  isFreeTrial            Boolean               @default(false)
+  plan                   Plan                  @default(NONE)
+  role                   Role                  @default(USER)
+  appointmentsAsClient   Appointment[]         @relation("client")
+  appointmentsAsProvider Appointment[]         @relation("provider")
+  availabilities         Availability[]
   providerCategories     ProviderCategory[]
   providerServices       ProviderService[]
-  reviews        Review[]
-  availabilities         Availability[]
+  refreshToken           RefreshToken?
+  reviews                Review[]
   specialAvailabilities  SpecialAvailability[]
   unavailabilities       Unavailability[]
-  tags                   Tags[]
+  tags                   Tags[]                @relation("TagsToUser")
 }
 
 model Pro {
-  id                     String   @id @default(cuid())
+  id                     String                @id @default(cuid())
   name                   String?
-  email                  String   @unique
+  email                  String                @unique
   password               String
-  phoneNumber            String?   @unique
+  phoneNumber            String?               @unique
   contactMethods         Json?
   address                String?
   profilePicture         String?
   coverImage             String?
   bookingTerms           String?
-  isFreeTrial            Boolean  @default(false)
-  daysLeftInTrial        Int      @default(0)
-  plan                   Plan     @default(NONE)
-  isInVacancyMode        Boolean  @default(false)
-  autoAcceptAppointments Boolean  @default(false)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-  refreshToken           RefreshToken?
-  role                   Role     @default(PRO)
-
+  isFreeTrial            Boolean               @default(false)
+  daysLeftInTrial        Int                   @default(0)
+  plan                   Plan                  @default(NONE)
+  isInVacancyMode        Boolean               @default(false)
+  autoAcceptAppointments Boolean               @default(false)
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  role                   Role                  @default(USER)
   appointments           Appointment[]
+  availabilities         Availability[]
   providerCategories     ProviderCategory[]
   providerServices       ProviderService[]
-  availabilities         Availability[]
+  refreshToken           RefreshToken?
   specialAvailabilities  SpecialAvailability[]
   unavailabilities       Unavailability[]
-  tags                   Tags[]
+  tags                   Tags[]                @relation("ProToTags")
 }
 
 model Salon {
-  id              String   @id @default(cuid())
-  name            String
-  email           String   @unique
-  password        String
-  phoneNumber     String   @unique
-  address         String
+  id                     String                @id @default(cuid())
+  name                   String
+  email                  String                @unique
+  password               String
+  phoneNumber            String                @unique
+  address                String
+  isFreeTrial            Boolean               @default(false)
+  daysLeftInTrial        Int                   @default(0)
+  plan                   Plan                  @default(NONE)
+  profilePicture         String?
+  coverImage             String?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  role                   Role                  @default(SALON)
+  autoAcceptAppointments Boolean               @default(true)
+  isInVacancyMode        Boolean               @default(false)
   bookingTerms           String?
-  isProvider      Boolean  @default(true)
-  isInVacancyMode        Boolean  @default(false)
-  autoAcceptAppointments Boolean  @default(true)
-  isFreeTrial     Boolean  @default(false)
-  daysLeftInTrial Int      @default(0)
-  plan            Plan     @default(NONE)
-  profilePicture  String?
-  coverImage      String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  role            Role     @default(SALON)
-  refreshToken    RefreshToken?
-
-  members         Member[]
-  providerCategories ProviderCategory[]
-  providerServices   ProviderService[]
-  appointments      Appointment[]
-  availabilities     Availability[]
-  specialAvailabilities SpecialAvailability[]
-  unavailabilities   Unavailability[]
-  tags               Tags[]
+  isProvider             Boolean               @default(true)
+  appointments           Appointment[]
+  availabilities         Availability[]
+  members                Member[]
+  providerCategories     ProviderCategory[]
+  providerServices       ProviderService[]
+  refreshToken           RefreshToken?
+  specialAvailabilities  SpecialAvailability[]
+  unavailabilities       Unavailability[]
+  tags                   Tags[]                @relation("SalonToTags")
 }
 
 model Member {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
-  accessCode String @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  role      Role      @default(MEMBER)
-  refreshToken RefreshToken?
-
-  salonId String
-  salon   Salon  @relation(fields: [salonId], references: [id], onDelete: Cascade)
-
-  appointments Appointment[]
-  availabilities Availability[]
+  id                    String                @id @default(cuid())
+  firstName             String
+  lastName              String
+  accessCode            String                @unique
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  salonId               String
+  role                  Role                  @default(MEMBER)
+  appointments          Appointment[]
+  availabilities        Availability[]
+  salon                 Salon                 @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  refreshToken          RefreshToken?
   specialAvailabilities SpecialAvailability[]
-  unavailabilities Unavailability[]
-  services ProviderService[] @relation("memberServices")
+  unavailabilities      Unavailability[]
+  services              ProviderService[]     @relation("memberServices")
 }
 
 model Availability {
-  id        String    @id @default(cuid())
-  dayOfWeek DayOfWeek
-  startTime String
-  endTime   String
-
+  id         String           @id @default(cuid())
+  dayOfWeek  DayOfWeek
   providerId String?
-  proId String?
-  salonId  String?
-  memberId  String?
-  serviceId String?
-  provider   User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
-  salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
-  member     Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  startTime  String
+  endTime    String
+  memberId   String?
+  salonId    String?
+  serviceId  String?
+  proId      String?
+  member     Member?          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  pro        Pro?             @relation(fields: [proId], references: [id], onDelete: Cascade)
+  provider   User?            @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  salon      Salon?           @relation(fields: [salonId], references: [id], onDelete: Cascade)
   service    ProviderService? @relation(fields: [serviceId], references: [id])
 }
 
 model SpecialAvailability {
-  id        String    @id @default(cuid())
-  date      String
-  startTime String
-  endTime   String
-
+  id         String  @id @default(cuid())
+  date       String
+  startTime  String
+  endTime    String
   providerId String?
-  proId String?
-  salonId  String?
-  memberId  String?
-  provider   User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
-  salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  memberId   String?
+  salonId    String?
+  proId      String?
   member     Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
+  provider   User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
 }
 
 model Unavailability {
-  id        String    @id @default(cuid())
-  date      String
-  startTime String
-  endTime   String
-
+  id         String  @id @default(cuid())
+  date       String
+  startTime  String
+  endTime    String
   providerId String?
-  proId String?
-  salonId  String?
-  memberId  String?
-  provider   User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
-  salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  salonId    String?
+  memberId   String?
+  proId      String?
   member     Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
+  provider   User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
 }
 
 model Appointment {
-  id        String            @id @default(cuid())
-  date      String
-  duration  Int
-  status    AppointmentStatus @default(PENDING)
-  details   String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-
+  id         String            @id @default(cuid())
+  status     AppointmentStatus @default(PENDING)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
   providerId String?
-  proId String?
-  salonId    String?
-  memberId   String?
   clientId   String
   serviceId  String
-  provider   User?   @relation("provider", fields: [providerId], references: [id], onDelete: Cascade)
-  pro        Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
-  salon      Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
-  member     Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  client     User   @relation("client", fields: [clientId], references: [id], onDelete: Cascade)
-  service    ProviderService @relation(fields: [serviceId], references: [id])
+  details    String?
+  date       String
+  duration   Int
+  memberId   String?
+  salonId    String?
+  proId      String?
+  client     User              @relation("client", fields: [clientId], references: [id], onDelete: Cascade)
+  member     Member?           @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  pro        Pro?              @relation(fields: [proId], references: [id], onDelete: Cascade)
+  provider   User?             @relation("provider", fields: [providerId], references: [id], onDelete: Cascade)
+  salon      Salon?            @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  service    ProviderService   @relation(fields: [serviceId], references: [id])
 }
 
 model Tags {
-  id   String @id @default(cuid())
-  name String
-  users User[]
-  pros Pro[]
-  salons Salon[]
+  id     String  @id @default(cuid())
+  name   String
+  pros   Pro[]   @relation("ProToTags")
+  salons Salon[] @relation("SalonToTags")
+  users  User[]  @relation("TagsToUser")
 }
 
 model ProviderCategory {
-  id          String   @id @default(cuid())
-  name        String
-  isActive    Boolean  @default(false)
-  providerId  String?
-  proId  String?  
-  salonId     String?
-  provider    User?     @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  pro    Pro?     @relation(fields: [proId], references: [id], onDelete: Cascade)
-  salon       Salon?    @relation(fields: [salonId], references: [id], onDelete: Cascade)
-  services    ProviderService[]
+  id         String            @id @default(cuid())
+  name       String
+  providerId String?
+  isActive   Boolean           @default(false)
+  salonId    String?
+  proId      String?
+  pro        Pro?              @relation(fields: [proId], references: [id], onDelete: Cascade)
+  provider   User?             @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  salon      Salon?            @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  services   ProviderService[]
 }
 
 model ProviderService {
-  id                String   @id @default(cuid())
-  name              String
-  price             Float
-  deposit           Float    @default(0)
-  duration          Int
-  description       String?
-  isActive          Boolean  @default(true)
-  providerId        String?
-  proId        String?
-  salonId           String?
+  id                 String           @id @default(cuid())
+  duration           Int
+  name               String
+  price              Float
   providerCategoryId String
-  provider          User?   @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  pro          Pro?   @relation(fields: [proId], references: [id], onDelete: Cascade)
-  salon             Salon?  @relation(fields: [salonId], references: [id], onDelete: Cascade)
-  providerCategory  ProviderCategory @relation(fields: [providerCategoryId], references: [id], onDelete: Cascade)
-  appointments      Appointment[]
-  reviews           Review[]
+  description        String?
+  providerId         String?
+  isActive           Boolean          @default(true)
+  deposit            Float            @default(0)
+  salonId            String?
+  proId              String?
+  appointments       Appointment[]
   availabilities     Availability[]
-  member            Member[] @relation("memberServices")
+  pro                Pro?             @relation(fields: [proId], references: [id], onDelete: Cascade)
+  providerCategory   ProviderCategory @relation(fields: [providerCategoryId], references: [id], onDelete: Cascade)
+  provider           User?            @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  salon              Salon?           @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  reviews            Review[]
+  member             Member[]         @relation("memberServices")
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  rating    Float
-  comment   String?
-  createdAt DateTime @default(now())
-  clientId   String
-  providerServiceId   String
-  client     User  @relation( fields: [clientId], references: [id], onDelete: Cascade)
-  providerService     ProviderService  @relation( fields: [providerServiceId], references: [id], onDelete: Cascade)
+  id                String          @id @default(cuid())
+  rating            Float
+  comment           String?
+  createdAt         DateTime        @default(now())
+  clientId          String
+  providerServiceId String
+  client            User            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  providerService   ProviderService @relation(fields: [providerServiceId], references: [id], onDelete: Cascade)
 }
 
 model RefreshToken {
-  id        String  @id @default(cuid())
   token     String?  @unique
   createdAt DateTime @default(now())
-  userId    String?   @unique
-  proId    String?   @unique
-  salonId   String?   @unique
-  memberId String?   @unique
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pro  Pro?    @relation(fields: [proId], references: [id], onDelete: Cascade)
-  salon     Salon?   @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  userId    String?  @unique
+  id        String   @id @default(cuid())
+  salonId   String?  @unique
+  memberId  String?  @unique
+  proId     String?  @unique
   member    Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  pro       Pro?     @relation(fields: [proId], references: [id], onDelete: Cascade)
+  salon     Salon?   @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum AppointmentStatus {
@@ -280,6 +271,7 @@ enum DayOfWeek {
   SATURDAY
   SUNDAY
 }
+
 enum Plan {
   NONE
   ESSENTIAL
@@ -290,7 +282,6 @@ enum Plan {
 
 enum Role {
   USER
-  PRO
   SALON
   MEMBER
 }
