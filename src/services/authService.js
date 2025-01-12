@@ -44,14 +44,55 @@ exports.registerUser = async (data) => {
   return { accessToken, refreshToken, newUser };
 };
 
+exports.registerPro = async (data) => {
+  const { email, password } = data;
+
+  // Check if the pro already exists by email
+  const proExists = await prisma.pro.findFirst({
+    where: { email },
+  });
+
+  if (proExists) {
+    const error = new Error("Pro already exists");
+    error.statusCode = 409;
+    throw error;
+  }
+
+  // Hash password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  // Create pro
+  const newPro = await prisma.pro.create({
+    data: { ...data, password: hashedPassword },
+  });
+
+  // Generate tokens
+  const accessToken = jwt.sign(
+    { id: newPro.id, role: newPro.role },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "30m" }
+  );
+  const refreshToken = jwt.sign(
+    { id: newPro.id, role: newPro.role },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  // create refresh token in database
+  await prisma.refreshToken.create({
+    data: { token: refreshToken, proId: newPro.id },
+  });
+
+  return { accessToken, refreshToken, newPro };
+};
+
 exports.registerSalon = async (data) => {
-  const { phoneNumber, email, password } = data;
+  const { email, password } = data;
 
   // Check if the salon already exists by phone number or email
   const salonExists = await prisma.salon.findFirst({
-    where: {
-      OR: [{ phoneNumber }, { email }],
-    },
+    where: { email },
   });
 
   if (salonExists) {
@@ -132,20 +173,20 @@ exports.loginUser = async (phoneNumber, password) => {
   return { user, accessToken, refreshToken };
 };
 
-exports.loginUser = async (phoneNumber, password) => {
-  // Check if user exists
-  const user = await prisma.user.findFirst({
-    where: { phoneNumber },
+exports.loginPro = async (email, password) => {
+  // Check if pro exists
+  const pro = await prisma.pro.findFirst({
+    where: { email },
   });
 
-  if (!user) {
+  if (!pro) {
     const error = new Error("Invalid credentials");
     error.statusCode = 401;
     throw error;
   }
 
   // Compare passwords
-  const validPassword = await bcrypt.compare(password, user.password);
+  const validPassword = await bcrypt.compare(password, pro.password);
 
   if (!validPassword) {
     const error = new Error("Invalid credentials");
@@ -155,24 +196,24 @@ exports.loginUser = async (phoneNumber, password) => {
 
   // Generate tokens
   const accessToken = jwt.sign(
-    { id: user.id, role: user.role },
+    { id: pro.id, role: pro.role },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "30m" }
   );
   const refreshToken = jwt.sign(
-    { id: user.id, role: user.role },
+    { id: pro.id, role: pro.role },
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: "7d" }
   );
 
   // update refresh token in database
   await prisma.refreshToken.update({
-    where: { userId: user.id },
+    where: { proId: pro.id },
     data: { token: refreshToken },
   });
 
-  return { user, accessToken, refreshToken };
-};
+  return { pro, accessToken, refreshToken };
+}
 
 exports.loginSalon = async (email, password) => {
   // Check if salon exists

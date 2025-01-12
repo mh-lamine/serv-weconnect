@@ -8,7 +8,7 @@ const {
 } = require("../utils/businessLogic");
 
 exports.createAvailability = async (id, role, data) => {
-  const ref = role === "USER" ? "providerId" : "SALON" ? "salonId" : null;
+  const ref = role === "PRO" ? "proId" : "SALON" ? "salonId" : null;
   const overlappingAvailability = await prisma.availability.findFirst({
     where: {
       [ref]: id,
@@ -98,7 +98,7 @@ exports.createMemberAvailability = async (memberId, salonId, data) => {
 };
 
 exports.createSpecialAvailability = async (id, role, data) => {
-  const ref = role === "USER" ? "providerId" : "SALON" ? "salonId" : null;
+  const ref = role === "PRO" ? "proId" : "SALON" ? "salonId" : null;
   const overlappingSpecialAvailability =
     await prisma.specialAvailability.findFirst({
       where: {
@@ -190,7 +190,7 @@ exports.createSpecialMemberAvailability = async (memberId, salonId, data) => {
 };
 
 exports.createUnavailability = async (id, role, data) => {
-  const ref = role === "USER" ? "providerId" : "SALON" ? "salonId" : null;
+  const ref = role === "PRO" ? "proId" : "SALON" ? "salonId" : null;
   const overlappingUnavailability = await prisma.unavailability.findFirst({
     where: {
       [ref]: id,
@@ -239,7 +239,7 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
 
   const specialDayAvailabilities = await prisma.specialAvailability.findMany({
     where: {
-      providerId: id,
+      proId: id,
       date: dateTime.toISODate(),
     },
   });
@@ -249,7 +249,7 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
       ? specialDayAvailabilities
       : await prisma.availability.findMany({
           where: {
-            providerId: id,
+            proId: id,
             dayOfWeek,
           },
         });
@@ -259,7 +259,7 @@ exports.getAvailableTimeSlots = async (id, date, serviceDuration) => {
       status: {
         in: ["PENDING", "ACCEPTED"],
       },
-      providerId: id,
+      proId: id,
       date: {
         startsWith: dateTime.toISODate(),
       },
@@ -368,7 +368,7 @@ exports.getAvailabilities = async (id) => {
     await prisma.$transaction([
       prisma.availability.findMany({
         where: {
-          OR: [{ providerId: id }, { salonId: id }],
+          OR: [{ proId: id }, { salonId: id }],
         },
         orderBy: [
           {
@@ -378,7 +378,7 @@ exports.getAvailabilities = async (id) => {
       }),
       prisma.specialAvailability.findMany({
         where: {
-          OR: [{ providerId: id }, { salonId: id }],
+          OR: [{ proId: id }, { salonId: id }],
           date: {
             gte: DateTime.now().toISODate(),
           },
@@ -391,7 +391,7 @@ exports.getAvailabilities = async (id) => {
       }),
       prisma.unavailability.findMany({
         where: {
-          OR: [{ providerId: id }, { salonId: id }],
+          OR: [{ proId: id }, { salonId: id }],
           date: {
             gte: DateTime.now().toISOTime(),
           },
@@ -445,7 +445,7 @@ exports.updateAvailability = async (id, availabilityId, data) => {
     await prisma.availability.update({
       where: {
         id: availabilityId,
-        OR: [{ providerId: id }, { salonId: id }],
+        OR: [{ proId: id }, { salonId: id }],
       },
       data,
     });
@@ -459,7 +459,7 @@ exports.deleteAvailability = async (id, availabilityId) => {
     await prisma.availability.delete({
       where: {
         id: availabilityId,
-        OR: [{ providerId: id }, { salonId: id }],
+        OR: [{ proId: id }, { salonId: id }],
       },
     });
   } catch (error) {
@@ -472,7 +472,7 @@ exports.deleteSpecialAvailability = async (id, availabilityId) => {
     await prisma.specialAvailability.delete({
       where: {
         id: availabilityId,
-        OR: [{ providerId: id }, { salonId: id }],
+        OR: [{ proId: id }, { salonId: id }],
       },
     });
   } catch (error) {
@@ -485,7 +485,7 @@ exports.deleteUnavailability = async (id, unavailabilityId) => {
     await prisma.unavailability.delete({
       where: {
         id: unavailabilityId,
-        OR: [{ providerId: id }, { salonId: id }],
+        OR: [{ proId: id }, { salonId: id }],
       },
     });
   } catch (error) {

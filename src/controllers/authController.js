@@ -18,6 +18,25 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+exports.registerPro = async (req, res) => {
+  try {
+    const { newPro, accessToken, refreshToken } = await authService.registerPro(
+      req.body
+    );
+    return res
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 24,
+        domain: "pro.weconnect-rdv.fr",
+      })
+      .json({ accessToken, ...newPro });
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
 exports.registerSalon = async (req, res) => {
   try {
     const { newSalon, accessToken, refreshToken } =
@@ -60,6 +79,30 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+exports.loginPro = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const { pro, accessToken, refreshToken } = await authService.loginPro(
+      email,
+      password
+    );
+    return res
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 24,
+        domain: "pro.weconnect-rdv.fr",
+      })
+      .json({ ...pro, accessToken });
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
 exports.loginSalon = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -90,8 +133,10 @@ exports.loginMember = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-    const { member, accessToken, refreshToken } =
-      await authService.loginMember(email, password);
+    const { member, accessToken, refreshToken } = await authService.loginMember(
+      email,
+      password
+    );
     return res
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -104,7 +149,7 @@ exports.loginMember = async (req, res) => {
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
-}
+};
 
 exports.refreshToken = async (req, res) => {
   const cookies = req.cookies;

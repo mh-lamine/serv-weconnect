@@ -18,7 +18,6 @@ exports.getProvidersByFilters = async (filters) => {
 
   const query = {
     where: {
-      isProvider: true,
       ...(id && { id }),
       ...(tags && {
         tags: {
@@ -71,7 +70,7 @@ exports.getProvidersByFilters = async (filters) => {
 
   try {
     const [table1, table2] = await prisma.$transaction([
-      prisma.user.findMany(query),
+      prisma.pro.findMany(query),
       prisma.salon.findMany(query),
     ]);
     return table1.concat(table2);

@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 exports.createProviderService = async (id, role, data) => {
   const ref =
-    role === "USER" ? "providerId" : role === "SALON" ? "salonId" : null;
+    role === "PRO" ? "proId" : role === "SALON" ? "salonId" : null;
   const body = {
     ...data,
     [ref]: id,
@@ -14,12 +14,12 @@ exports.createProviderService = async (id, role, data) => {
   });
 };
 
-exports.updateProviderService = async (providerId, serviceId, data) => {
+exports.updateProviderService = async (proId, serviceId, data) => {
   const { providerCategoryId } = data;
   await prisma.providerService.update({
     where: {
       id: serviceId,
-      OR: [{ providerId }, { salonId: providerId }],
+      OR: [{ proId }, { salonId: proId }],
     },
     data: {
       ...data,
@@ -27,7 +27,7 @@ exports.updateProviderService = async (providerId, serviceId, data) => {
   });
   const activeServices = await prisma.providerService.findMany({
     where: {
-      OR: [{ providerId }, { salonId: providerId }],
+      OR: [{ proId }, { salonId: proId }],
       providerCategoryId,
       isActive: true,
     },
@@ -36,7 +36,7 @@ exports.updateProviderService = async (providerId, serviceId, data) => {
     await prisma.providerCategory.update({
       where: {
         id: providerCategoryId,
-        OR: [{ providerId }, { salonId: providerId }],
+        OR: [{ proId }, { salonId: proId }],
       },
       data: {
         isActive: false,
@@ -45,11 +45,11 @@ exports.updateProviderService = async (providerId, serviceId, data) => {
   }
 };
 
-exports.deleteProviderService = async (providerId, serviceId) => {
+exports.deleteProviderService = async (proId, serviceId) => {
   return await prisma.providerService.delete({
     where: {
       id: serviceId,
-      OR: [{ providerId }, { salonId: providerId }],
+      OR: [{ proId }, { salonId: proId }],
     },
   });
 };

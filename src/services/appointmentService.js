@@ -17,9 +17,9 @@ exports.createAppointment = async (data, clientId) => {
     await prisma.appointment.create({
       data: { ...data, clientId },
     });
-    if (data.providerId) {
+    if (data.proId) {
       const { phoneNumber } = await prisma.user.findUnique({
-        where: { id: data.providerId },
+        where: { id: data.proId },
       });
       sendSMS(
         phoneNumber,
@@ -45,7 +45,7 @@ exports.getAppointmentsAsClient = async (id) => {
       date: { gt: now },
     },
     include: {
-      provider: true,
+      pro: true,
       salon: true,
       service: true,
     },
@@ -60,7 +60,7 @@ exports.getAppointmentsAsClient = async (id) => {
       date: { lt: now },
     },
     include: {
-      provider: true,
+      pro: true,
       salon: true,
       service: true,
     },
@@ -78,12 +78,9 @@ exports.getAppointmentsAsProvider = async (id) => {
 
   await updateAppointmentsStatuses(id);
 
-  const startOfDay = DateTime.local().startOf("day");
-  const endOfDay = startOfDay.plus({ days: 1 });
-
   const futureAppointments = await prisma.appointment.findMany({
     where: {
-      OR: [{ salonId: id }, { providerId: id }],
+      OR: [{ salonId: id }, { proId: id }],
       status: {
         in: ["PENDING", "ACCEPTED"],
       },
@@ -101,7 +98,7 @@ exports.getAppointmentsAsProvider = async (id) => {
   const today = DateTime.now().toISODate();
   const todaysAppointments = await prisma.appointment.findMany({
     where: {
-      OR: [{ salonId: id }, { providerId: id }],
+      OR: [{ salonId: id }, { proId: id }],
       date: {
         startsWith: today,
       },
@@ -118,7 +115,7 @@ exports.getAppointmentsAsProvider = async (id) => {
 
   const missedAppointments = await prisma.appointment.findMany({
     where: {
-      OR: [{ salonId: id }, { providerId: id }],
+      OR: [{ salonId: id }, { proId: id }],
       date: { lt: now },
       status: "PENDING",
     },
@@ -188,19 +185,19 @@ exports.getAppointmentsAsMember = async (id) => {
 };
 
 exports.updateAppointment = async (userId, role, appointmentId, data) => {
-  const allowedRoles = ["USER", "SALON"];
+  const allowedRoles = ["USER", "PRO", "SALON"];
 
   if (!allowedRoles.includes(role)) {
     const error = new Error("Unauthorized to update appointment");
     error.statusCode = 403; // Forbidden
     throw error;
   }
-  
+
   try {
     const appointment = await prisma.appointment.update({
       where: {
         id: appointmentId,
-        OR: [{ clientId: userId }, { providerId: userId }, { salonId: userId }],
+        OR: [{ clientId: userId }, { proId: userId }, { salonId: userId }],
       },
       data,
     });
@@ -234,7 +231,7 @@ exports.deleteAppointment = async (userId, appointmentId) => {
     await prisma.appointment.delete({
       where: {
         id: appointmentId,
-        OR: [{ clientId: userId }, { providerId: userId }, { salonId: userId }],
+        OR: [{ clientId: userId }, { proId: userId }, { salonId: userId }],
       },
     });
   } catch (error) {
