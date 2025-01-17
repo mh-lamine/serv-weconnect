@@ -1,0 +1,8 @@
+const express = require("express");
+const router = express.Router();
+const stripeController = require("../controllers/stripeController");
+const { verifyToken } = require("../utils/middleware");
+
+router.post("/startOnboarding", verifyToken, stripeController.startOnboarding);
+
+module.exports = router;

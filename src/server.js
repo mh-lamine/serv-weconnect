@@ -16,6 +16,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const providerCategoryRoutes = require("./routes/providerCategoryRoutes");
 const providerServiceRoutes = require("./routes/providerServiceRoutes");
 const tagsRoutes = require("./routes/tagsRoutes");
+const stripeRoutes = require("./routes/stripeRoutes");
 const { sendAppointmentReminders } = require("./services/reminderService");
 
 const app = express();
@@ -36,6 +37,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/providerCategory", providerCategoryRoutes);
 app.use("/api/providerService", providerServiceRoutes);
 app.use("/api/tags", tagsRoutes);
+app.use("/api/stripe", stripeRoutes);
 
 // Set up cron job to run every day at 10 AM France time
 const TIMEZONE = "Europe/Paris";

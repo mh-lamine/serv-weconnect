@@ -47,6 +47,7 @@ model Pro {
   email                  String                @unique
   password               String
   phoneNumber            String?               @unique
+  stripeConnectedAccountId String?           @unique
   contactMethods         Json?
   address                String?
   profilePicture         String?
@@ -76,6 +77,7 @@ model Salon {
   email                  String                @unique
   password               String
   phoneNumber            String                @unique
+  stripeConnectedAccountId String?           @unique
   address                String
   isFreeTrial            Boolean               @default(false)
   daysLeftInTrial        Int                   @default(0)
@@ -218,6 +220,7 @@ model ProviderService {
   providerId         String?
   isActive           Boolean          @default(true)
   deposit            Float            @default(0)
+  stripePriceId      String?
   salonId            String?
   proId              String?
   appointments       Appointment[]
