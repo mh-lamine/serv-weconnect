@@ -37,3 +37,24 @@ exports.startOnboarding = async (id) => {
 
   return onboardingUrl;
 };
+
+exports.createPaymentIntent = async (connectedAccountId, amount) => {
+  try {
+    console.log("creating payment intent");
+    return await stripe.paymentIntents.create(
+      {
+        amount,
+        currency: "eur",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      },
+      {
+        stripeAccount: connectedAccountId,
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(`Session creation failed: ${error.message}`);
+  }
+};

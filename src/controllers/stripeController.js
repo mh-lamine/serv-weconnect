@@ -9,3 +9,16 @@ exports.startOnboarding = async (req, res) => {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
+exports.createPaymentIntent = async (req, res) => {
+  const { connectedAccountId, amount } = req.body;
+  try {
+    const { client_secret } = await stripeService.createPaymentIntent(
+      connectedAccountId,
+      amount
+    );
+    return res.status(201).json(client_secret);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
