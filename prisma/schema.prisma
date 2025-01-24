@@ -48,6 +48,8 @@ model Pro {
   password               String
   phoneNumber            String?               @unique
   stripeConnectedAccountId String?           @unique
+  defaultDeposit         Float                @default(0)
+  defaultPaymentOption   PaymentOption        @default(ON_SITE)
   contactMethods         Json?
   address                String?
   profilePicture         String?
@@ -78,6 +80,8 @@ model Salon {
   password               String
   phoneNumber            String                @unique
   stripeConnectedAccountId String?           @unique
+  defaultDeposit         Float                @default(0)
+  defaultPaymentOption   PaymentOption        @default(ON_SITE)
   address                String
   isFreeTrial            Boolean               @default(false)
   daysLeftInTrial        Int                   @default(0)
@@ -170,6 +174,7 @@ model Unavailability {
 model Appointment {
   id         String            @id @default(cuid())
   status     AppointmentStatus @default(PENDING)
+  paymentStatus PaymentStatus   @default(PENDING)
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
   providerId String?
@@ -220,7 +225,7 @@ model ProviderService {
   providerId         String?
   isActive           Boolean          @default(true)
   deposit            Float            @default(0)
-  stripePriceId      String?
+  paymentOption      PaymentOption    @default(ON_SITE)
   salonId            String?
   proId              String?
   appointments       Appointment[]
@@ -288,4 +293,17 @@ enum Role {
   PRO
   SALON
   MEMBER
+}
+
+enum PaymentOption {
+  ON_SITE
+  DEPOSIT
+  FULL
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTLY_PAID
+  FULLY_PAID
+  REFUNDED
 }
