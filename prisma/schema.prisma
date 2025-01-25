@@ -7,6 +7,51 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
+enum AppointmentStatus {
+  PENDING
+  ACCEPTED
+  CANCELLED
+  COMPLETED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum Plan {
+  NONE
+  ESSENTIAL
+  PRO
+  ENTERPRISE
+  FRANCHISE
+}
+
+enum Role {
+  USER
+  PRO
+  SALON
+  MEMBER
+}
+
+enum PaymentOption {
+  ON_SITE
+  DEPOSIT
+  FULL
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTLY_PAID
+  FULLY_PAID
+  REFUNDED
+}
+
 model User {
   id                     String                @id @default(cuid())
   email                  String?               @unique
@@ -261,49 +306,4 @@ model RefreshToken {
   pro       Pro?     @relation(fields: [proId], references: [id], onDelete: Cascade)
   salon     Salon?   @relation(fields: [salonId], references: [id], onDelete: Cascade)
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-enum AppointmentStatus {
-  PENDING
-  ACCEPTED
-  CANCELLED
-  COMPLETED
-}
-
-enum DayOfWeek {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
-  SUNDAY
-}
-
-enum Plan {
-  NONE
-  ESSENTIAL
-  PRO
-  ENTERPRISE
-  FRANCHISE
-}
-
-enum Role {
-  USER
-  PRO
-  SALON
-  MEMBER
-}
-
-enum PaymentOption {
-  ON_SITE
-  DEPOSIT
-  FULL
-}
-
-enum PaymentStatus {
-  PENDING
-  PARTLY_PAID
-  FULLY_PAID
-  REFUNDED
 }
