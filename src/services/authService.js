@@ -213,7 +213,7 @@ exports.loginPro = async (email, password) => {
   });
 
   return { pro, accessToken, refreshToken };
-}
+};
 
 exports.loginSalon = async (email, password) => {
   // Check if salon exists
@@ -301,19 +301,30 @@ exports.refreshToken = async (refreshToken) => {
     throw new Error("Token non valide ou expiré.");
   }
 
-  const [table1, table2, table3] = await prisma.$transaction([
-    prisma.user.findFirst({
-      where: { id: userToken.userId || undefined },
-    }),
-    prisma.salon.findFirst({
-      where: { id: userToken.salonId || undefined },
-    }),
-    prisma.member.findFirst({
-      where: { id: userToken.memberId || undefined },
-    }),
-  ]);
+  const table = userToken.userId
+    ? "user"
+    : userToken.proId
+    ? "pro"
+    : userToken.salonId
+    ? "salon"
+    : userToken.memberId
+    ? "member"
+    : null;
 
-  const user = table1 || table2 || table3;
+  const id =
+    table === "user"
+      ? userToken.userId
+      : table === "pro"
+      ? userToken.proId
+      : table === "salon"
+      ? userToken.salonId
+      : table === "member"
+      ? userToken.memberId
+      : null;
+
+  const user = await prisma[table].findFirst({
+    where: { id },
+  });
 
   // Verify token
   const accessToken = jwt.verify(
@@ -330,7 +341,7 @@ exports.refreshToken = async (refreshToken) => {
       );
     }
   );
-  return { accessToken, isProvider: user.isProvider || null };
+  return { ...user, accessToken };
 };
 
 exports.logout = async (refreshToken) => {

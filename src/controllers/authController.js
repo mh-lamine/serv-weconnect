@@ -10,7 +10,7 @@ exports.registerUser = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        domain: ".weconnect-rdv.fr",
+        domain: "weconnect-rdv.fr",
       })
       .json({ accessToken, ...newUser });
   } catch (error) {
@@ -47,7 +47,7 @@ exports.registerSalon = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        domain: ".weconnect-rdv.fr",
+        domain: "entreprise.weconnect-rdv.fr",
       })
       .json({ accessToken, ...newSalon });
   } catch (error) {
@@ -71,7 +71,7 @@ exports.loginUser = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        domain: ".weconnect-rdv.fr",
+        domain: "weconnect-rdv.fr",
       })
       .json({ ...user, accessToken });
   } catch (error) {
@@ -119,7 +119,7 @@ exports.loginSalon = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        domain: ".weconnect-rdv.fr",
+        domain: "entreprise.weconnect-rdv.fr",
       })
       .json({ ...salon, accessToken });
   } catch (error) {
@@ -143,7 +143,7 @@ exports.loginMember = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        domain: ".weconnect-rdv.fr",
+        domain: "entreprise.weconnect-rdv.fr",
       })
       .json({ ...member, accessToken });
   } catch (error) {
@@ -158,10 +158,8 @@ exports.refreshToken = async (req, res) => {
   }
   const refreshToken = cookies.refreshToken;
   try {
-    const { accessToken, isProvider } = await authService.refreshToken(
-      refreshToken
-    );
-    return res.json({ accessToken, isProvider });
+    const user = await authService.refreshToken(refreshToken);
+    return res.json(user);
   } catch (error) {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
