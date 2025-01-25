@@ -5,7 +5,7 @@ const { verifyToken, upload } = require("../utils/middleware");
 
 router.get("/", verifyToken, proController.getPro);
 // router.post("/providers", proController.getProvidersByFilters);
-// router.patch("/", verifyToken, proController.updateUser);
+router.patch("/", verifyToken, proController.updatePro);
 // router.patch("/admin", verifyToken, proController.makeProvider);
 // router.delete("/", verifyToken, proController.deleteUser);
 

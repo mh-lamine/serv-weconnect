@@ -10,3 +10,10 @@ exports.getPro = async (id) => {
     },
   });
 };
+
+exports.updatePro = async (id, data) => {
+  return await prisma.pro.update({
+    where: { id },
+    data,
+  });
+};

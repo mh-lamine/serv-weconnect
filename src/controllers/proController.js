@@ -9,3 +9,13 @@ exports.getPro = async (req, res) => {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
+exports.updatePro = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const pro = await proService.updatePro(id, req.body);
+    return res.json(pro);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
