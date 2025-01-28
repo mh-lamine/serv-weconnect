@@ -40,7 +40,6 @@ exports.startOnboarding = async (id) => {
 
 exports.createPaymentIntent = async (connectedAccountId, amount) => {
   try {
-    console.log("creating payment intent");
     return await stripe.paymentIntents.create(
       {
         amount,
