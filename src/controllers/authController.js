@@ -10,7 +10,7 @@ exports.registerUser = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        // domain: "www.weconnect-rdv.fr",
+        domain: "www.weconnect-rdv.fr",
       })
       .json({ accessToken, ...newUser });
   } catch (error) {
@@ -29,7 +29,7 @@ exports.registerPro = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        // domain: "pro.weconnect-rdv.fr",
+        domain: "pro.weconnect-rdv.fr",
       })
       .json({ accessToken, ...newPro });
   } catch (error) {
@@ -47,7 +47,7 @@ exports.registerSalon = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        // domain: "entreprise.weconnect-rdv.fr",
+        domain: "entreprise.weconnect-rdv.fr",
       })
       .json({ accessToken, ...newSalon });
   } catch (error) {
@@ -71,7 +71,7 @@ exports.loginUser = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        // domain: "www.weconnect-rdv.fr",
+        domain: "www.weconnect-rdv.fr",
       })
       .json({ ...user, accessToken });
   } catch (error) {
@@ -95,7 +95,7 @@ exports.loginPro = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        // domain: "pro.weconnect-rdv.fr",
+        domain: "pro.weconnect-rdv.fr",
       })
       .json({ ...pro, accessToken });
   } catch (error) {
@@ -119,7 +119,7 @@ exports.loginSalon = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        // domain: "entreprise.weconnect-rdv.fr",
+        domain: "entreprise.weconnect-rdv.fr",
       })
       .json({ ...salon, accessToken });
   } catch (error) {
