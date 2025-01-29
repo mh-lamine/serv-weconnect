@@ -24,15 +24,16 @@ exports.createAppointment = async (data, clientId) => {
       data: { ...data, clientId },
     });
     if (data.proId) {
-      const { phoneNumber } = await prisma.user.findUnique({
+      const { phoneNumber } = await prisma.pro.findUnique({
         where: { id: data.proId },
       });
-      sendSMS(
-        phoneNumber,
-        `Vous avez une nouvelle demande de rendez-vous sur WeConnect 🎉👑\n
+      phoneNumber &&
+        sendSMS(
+          phoneNumber,
+          `Vous avez une nouvelle demande de rendez-vous sur WeConnect 🎉👑\n
 Connectez-vous pour voir les détails.
 https://pro.weconnect-rdv.fr`
-      );
+        );
       return;
     }
   } catch (error) {
