@@ -13,6 +13,12 @@ exports.createAppointment = async (data, clientId) => {
     throw error;
   }
 
+  if (!data.date) {
+    const error = new Error("Date is required");
+    error.statusCode = 400; // Bad Request
+    throw error;
+  }
+
   try {
     await prisma.appointment.create({
       data: { ...data, clientId },
