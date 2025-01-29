@@ -10,7 +10,7 @@ exports.registerUser = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        domain: "weconnect-rdv.fr",
+        domain: "www.weconnect-rdv.fr",
       })
       .json({ accessToken, ...newUser });
   } catch (error) {
@@ -71,7 +71,7 @@ exports.loginUser = async (req, res) => {
         sameSite: "Lax",
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
-        domain: "weconnect-rdv.fr",
+        domain: "www.weconnect-rdv.fr",
       })
       .json({ ...user, accessToken });
   } catch (error) {
