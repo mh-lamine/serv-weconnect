@@ -5,7 +5,8 @@
   "scripts": {
     "server": "nodemon src/server.js",
     "start": "node src/server.js",
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.js",
+    "test": "npx playwright test --project mobile --ui"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +36,8 @@
     "stripe": "^16.8.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "@types/node": "^22.12.0",
     "nodemon": "^3.1.4"
   }
 }
