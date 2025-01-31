@@ -221,7 +221,7 @@ exports.updateAppointment = async (userId, role, appointmentId, data) => {
       const message = `Votre rendez-vous du ${formattedDate} à ${formattedTime} a été ${
         data.status === "ACCEPTED" ? "accepté" : "annulé"
       }.\nConnectez-vous pour voir les détails.\n
-      https://www.weconnect-rdv.fr`;
+https://www.weconnect-rdv.fr`;
       sendSMS(phoneNumber, message);
     }
     return appointment;
