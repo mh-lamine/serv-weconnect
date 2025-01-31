@@ -1,0 +1,1 @@
+import{j as t,I as m}from"./index-B486AUvC.js";import{L as p}from"./label-CoRDly_C.js";const u=({id:s,name:e="",label:a,type:l,defaultValue:n,placeholder:r=null,handleChange:o,disabled:i=!1})=>t.jsxs("div",{children:[t.jsx(p,{htmlFor:s,children:a}),t.jsx(m,{id:s,type:l,name:e,value:n,placeholder:r,onChange:o,disabled:i,className:"text-lg"})]}),j=u;export{j as E};
