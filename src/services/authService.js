@@ -2,6 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { sendSMS } = require("../utils/businessLogic");
 
 exports.registerUser = async (data) => {
   const { phoneNumber, password } = data;
@@ -349,4 +350,55 @@ exports.logout = async (refreshToken) => {
     where: { token: refreshToken },
     data: { token: null },
   });
+};
+
+exports.forgotPassword = async (phoneNumber) => {
+  const user = await prisma.user.findFirst({
+    where: { phoneNumber },
+  });
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Generate token
+  const token = jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "15m" }
+  );
+
+  console.log(typeof token);
+
+  try {
+    sendSMS(
+      phoneNumber,
+      `Cliquez sur le lien pour réinitialiser votre mot de passe: http://localhost:5173/reset-password/${token}`
+    );
+    return token;
+  } catch (error) {
+    return error;
+  }
+};
+
+exports.resetPassword = async (token, newPassword) => {
+  const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+  if (!decoded) {
+    const error = new Error("Invalid token");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+  const user = await prisma.user.update({
+    where: { id: decoded.id },
+    data: { password: hashedPassword },
+  });
+
+  return user;
 };

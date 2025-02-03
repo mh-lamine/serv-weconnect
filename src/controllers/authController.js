@@ -184,3 +184,24 @@ exports.logout = async (req, res) => {
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    console.log("forgot password", req.body.phoneNumber);
+    const token = await authService.forgotPassword(req.body.phoneNumber);
+    return res.json(token);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    await authService.resetPassword(token, newPassword);
+    return res.json({ message: "Password reset successful" });
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
