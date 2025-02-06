@@ -2,8 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.createProviderCategory = async (id, role, data) => {
-  const ref =
-    role === "PRO" ? "proId" : role === "SALON" ? "salonId" : null;
+  const ref = role === "PRO" ? "proId" : role === "SALON" ? "salonId" : null;
   const body = {
     ...data,
     [ref]: id,
@@ -44,8 +43,8 @@ exports.updateProviderCategory = async (proId, categoryId, data) => {
   });
 };
 
-exports.deleteProviderCategory = async (proId, categoryId) => {
-  return await prisma.providerCategory.delete({
-    where: { id: categoryId, OR: [{ proId }, { salonId: proId }] },
-  });
-};
+// exports.deleteProviderCategory = async (proId, categoryId) => {
+//   return await prisma.providerCategory.delete({
+//     where: { id: categoryId, OR: [{ proId }, { salonId: proId }] },
+//   });
+// };
