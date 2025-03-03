@@ -14,6 +14,14 @@ exports.createProviderService = async (id, role, data) => {
   });
 };
 
+exports.getProviderService = async (serviceId) => {
+  return await prisma.providerService.findUnique({
+    where: {
+      id: serviceId,
+    },
+  });
+}
+
 exports.updateProviderService = async (proId, serviceId, data) => {
   const { providerCategoryId } = data;
   await prisma.providerService.update({

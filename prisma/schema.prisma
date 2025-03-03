@@ -125,7 +125,7 @@ model Salon {
   password               String
   phoneNumber            String                @unique
   stripeConnectedAccountId String?           @unique
-  defaultDeposit         Float                @default(0)
+  defaultDeposit         Int                @default(0)
   defaultPaymentOption   PaymentOption        @default(ON_SITE)
   address                String
   isFreeTrial            Boolean               @default(false)

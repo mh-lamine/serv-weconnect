@@ -14,6 +14,18 @@ exports.createProviderService = async (req, res) => {
   }
 };
 
+exports.getProviderService = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    const providerService = await providerServiceService.getProviderService(
+      serviceId
+    );
+    return res.status(200).json(providerService);
+  } catch (error) {
+    return res.status(error.statusCode || 500).json({ message: error.message });
+  }
+}
+
 exports.updateProviderService = async (req, res) => {
   try {
     const providerId = req.user.id;
