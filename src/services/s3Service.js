@@ -23,7 +23,7 @@ exports.uploadProfile = async (id, role, file) => {
   };
 
   const command = new PutObjectCommand(params);
-  const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/profile-picture`;
+  const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/profile-picture?t=${new Date().getTime()}`;
 
   try {
     await s3.send(command);
@@ -65,7 +65,7 @@ exports.uploadCover = async (id, role, file) => {
   };
 
   const command = new PutObjectCommand(params);
-  const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/cover/cover-image`;
+  const filePath = `https://wcntbucket.s3.eu-west-3.amazonaws.com/user-${id}/cover/cover-image?t=${new Date().getTime()}`;
 
   try {
     await s3.send(command);
