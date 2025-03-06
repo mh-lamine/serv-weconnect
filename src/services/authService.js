@@ -370,12 +370,10 @@ exports.forgotPassword = async (phoneNumber) => {
     { expiresIn: "15m" }
   );
 
-  console.log(typeof token);
-
   try {
     sendSMS(
       phoneNumber,
-      `Cliquez sur le lien pour réinitialiser votre mot de passe: http://localhost:5173/reset-password/${token}`
+      `Cliquez sur le lien pour réinitialiser votre mot de passe: https://www.weconnect-rdv.fr/reset-password/${token}`
     );
     return token;
   } catch (error) {
