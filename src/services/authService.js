@@ -371,7 +371,7 @@ exports.forgotPassword = async (phoneNumber) => {
   );
 
   try {
-    sendSMS(
+    await sendSMS(
       phoneNumber,
       `Cliquez sur le lien pour réinitialiser votre mot de passe: https://www.weconnect-rdv.fr/reset-password/${token}. Ce lien expirera dans 15 minutes.`
     );
