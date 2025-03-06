@@ -187,7 +187,6 @@ exports.logout = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   try {
-    console.log("forgot password", req.body.phoneNumber);
     const token = await authService.forgotPassword(req.body.phoneNumber);
     return res.json(token);
   } catch (error) {
