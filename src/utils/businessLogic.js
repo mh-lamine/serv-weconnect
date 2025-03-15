@@ -157,6 +157,10 @@ exports.generateTimeSlots = (
   serviceDuration,
   todaysDate
 ) => {
+  console.log("slotStartTime", slotStartTime);
+  console.log("slotEndTime", slotEndTime);
+  console.log("serviceDuration", serviceDuration);
+  console.log("todaysDate", todaysDate);
   const timeSlots = [];
   let currentSlotStart = DateTime.fromISO(slotStartTime).toISOTime();
   let currentSlotEnd = DateTime.fromISO(slotStartTime)
@@ -193,6 +197,8 @@ exports.generateTimeSlots = (
       break;
     }
   }
+
+  console.log("timeSlots", timeSlots);
 
   return timeSlots;
 };

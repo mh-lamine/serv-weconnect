@@ -334,34 +334,23 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
 
     // Générer les créneaux disponibles en excluant les rendez-vous déjà pris
     let memberSlots = [];
-    console.log("for each availabilities:", JSON.stringify(availabilities, null, 2));
     availabilities.forEach((availability) => {
-      console.log("availability:", JSON.stringify(availability, null, 2));
       const availableRanges = generateAvailableRanges(
         availability,
         member.appointments
       );
-      console.log("availableRanges:", JSON.stringify(availableRanges, null, 2));
 
       const adjustedRanges = adjustAvailableRangesWithUnavailability(
         availableRanges,
         unavailabilities
       );
-      console.log("adjustedRanges:", JSON.stringify(adjustedRanges, null, 2));
 
-      console.log("for each adjustedRanges:", JSON.stringify(adjustedRanges, null, 2));
       adjustedRanges.forEach((range) => {
-        console.log("range:", JSON.stringify(range, null, 2));
         memberSlots = memberSlots.concat(
           generateTimeSlots(range.start, range.end, serviceDuration, date)
         );
-        console.log("memberSlots:", JSON.stringify(memberSlots, null, 2));
       });
-
-      console.log("adjustedRanges:", JSON.stringify(adjustedRanges, null, 2));
     });
-
-    console.log("memberSlots:", JSON.stringify(memberSlots, null, 2));
 
     // Ajouter les créneaux de chaque membre au tableau du salon
     salonAvailableSlots.push({
