@@ -340,12 +340,12 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
         member.appointments
       );
 
-      const adjustedRanges = adjustAvailableRangesWithUnavailability(
-        availableRanges,
-        unavailabilities
-      );
+      // const adjustedRanges = adjustAvailableRangesWithUnavailability(
+      //   availableRanges,
+      //   unavailabilities
+      // );
 
-      adjustedRanges.forEach((range) => {
+      availableRanges.forEach((range) => {
         memberSlots = memberSlots.concat(
           generateTimeSlots(range.start, range.end, serviceDuration, date)
         );
