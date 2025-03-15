@@ -351,9 +351,10 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
         );
       });
 
-      console.log("adjustedRanges", adjustedRanges)
+      console.log("adjustedRanges:", JSON.stringify(adjustedRanges, null, 2));
     });
-    console.log("memberSlots", memberSlots)
+
+    console.log("memberSlots:", JSON.stringify(memberSlots, null, 2));
 
     // Ajouter les créneaux de chaque membre au tableau du salon
     salonAvailableSlots.push({
@@ -363,17 +364,18 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
     });
   });
 
-  //log every data every step of the way
-  console.log("dateTime: ", dateTime)
-  console.log("dayOfWeek: ", dayOfWeek)
-  console.log("serviceId: ", serviceId)
-  console.log("serviceDuration: ", serviceDuration)
-  console.log("salonMembers: ", salonMembers)
-  console.log("unavailabilities: ", unavailabilities)
-  console.log("salonAvailableSlots: ", salonAvailableSlots)
+  // Logs améliorés avec JSON.stringify()
+  console.log("dateTime:", dateTime.toISO());
+  console.log("dayOfWeek:", dayOfWeek);
+  console.log("serviceId:", serviceId);
+  console.log("serviceDuration:", serviceDuration);
+  console.log("salonMembers:", JSON.stringify(salonMembers, null, 2));
+  console.log("unavailabilities:", JSON.stringify(unavailabilities, null, 2));
+  console.log("salonAvailableSlots:", JSON.stringify(salonAvailableSlots, null, 2));
 
   return salonAvailableSlots;
 };
+
 
 exports.getAvailabilities = async (id) => {
   const [availabilities, specialAvailabilities, unavailabilities] =
