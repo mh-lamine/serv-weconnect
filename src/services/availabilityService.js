@@ -367,7 +367,6 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
   console.log("serviceDuration: ", serviceDuration)
   console.log("salonMembers: ", salonMembers)
   console.log("unavailabilities: ", unavailabilities)
-  console.log("memberSlots: ", memberSlots)
   console.log("salonAvailableSlots: ", salonAvailableSlots)
 
   return salonAvailableSlots;
