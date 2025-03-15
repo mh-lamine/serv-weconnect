@@ -340,12 +340,12 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
         member.appointments
       );
 
-      // const adjustedRanges = adjustAvailableRangesWithUnavailability(
-      //   availableRanges,
-      //   unavailabilities
-      // );
+      const adjustedRanges = adjustAvailableRangesWithUnavailability(
+        availableRanges,
+        unavailabilities
+      );
 
-      availableRanges.forEach((range) => {
+      adjustedRanges.forEach((range) => {
         memberSlots = memberSlots.concat(
           generateTimeSlots(range.start, range.end, serviceDuration, date)
         );
@@ -359,6 +359,17 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
       availableSlots: memberSlots,
     });
   });
+
+  //log every data every step of the way
+  console.log("dateTime: ", dateTime)
+  console.log("dayOfWeek: ", dayOfWeek)
+  console.log("serviceId: ", serviceId)
+  console.log("serviceDuration: ", serviceDuration)
+  console.log("salonMembers: ", salonMembers)
+  console.log("unavailabilities: ", unavailabilities)
+  console.log("adjustedRanges: ", adjustedRanges)
+  console.log("memberSlots: ", memberSlots)
+  console.log("salonAvailableSlots: ", salonAvailableSlots)
 
   return salonAvailableSlots;
 };
