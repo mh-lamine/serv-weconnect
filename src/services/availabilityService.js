@@ -350,7 +350,10 @@ exports.getSalonAvailableTimeSlots = async (salonId, date, service) => {
           generateTimeSlots(range.start, range.end, serviceDuration, date)
         );
       });
+
+      console.log("adjustedRanges", adjustedRanges)
     });
+    console.log("memberSlots", memberSlots)
 
     // Ajouter les créneaux de chaque membre au tableau du salon
     salonAvailableSlots.push({
