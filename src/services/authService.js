@@ -372,10 +372,6 @@ exports.forgotPassword = async (phoneNumber) => {
   );
 
   try {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { resetToken: token },
-    });
     await sendSMS(
       phoneNumber,
       `Cliquez sur le lien pour réinitialiser votre mot de passe: https://www.weconnect-rdv.fr/reset-password/${token}\nCe lien expirera dans 15 minutes.`
@@ -389,21 +385,12 @@ exports.forgotPassword = async (phoneNumber) => {
 exports.resetPassword = async (token, newPassword) => {
   const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-  if (!decoded) {
-    const error = new Error("Invalid token");
-    error.statusCode = 403;
-    throw error;
-  }
-
   const { resetToken } = await prisma.user.findFirst({
     where: { id: decoded.id },
   });
 
-  console.log("resetToken", resetToken);
-  console.log("token", token);
-  if (resetToken !== token) {
-    console.log("Token already used");
-    const error = new Error("Expired token");
+  if (resetToken == token) {
+    const error = new Error("Token already used");
     error.statusCode = 403;
     throw error;
   }
@@ -413,6 +400,6 @@ exports.resetPassword = async (token, newPassword) => {
 
   return await prisma.user.update({
     where: { id: decoded.id },
-    data: { password: hashedPassword },
+    data: { password: hashedPassword, resetToken: token },
   });
 };
