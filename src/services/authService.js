@@ -401,7 +401,7 @@ exports.resetPassword = async (token, newPassword) => {
 
   console.log("resetToken", resetToken);
   console.log("token", token);
-  if (resetToken == token) {
+  if (resetToken !== token) {
     console.log("Token already used");
     const error = new Error("Expired token");
     error.statusCode = 403;
