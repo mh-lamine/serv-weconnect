@@ -371,6 +371,10 @@ exports.forgotPassword = async (phoneNumber) => {
   );
 
   try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { resetToken: token },
+    });
     await sendSMS(
       phoneNumber,
       `Cliquez sur le lien pour réinitialiser votre mot de passe: https://www.weconnect-rdv.fr/reset-password/${token}\nCe lien expirera dans 15 minutes.`
