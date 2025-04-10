@@ -394,13 +394,21 @@ exports.resetPassword = async (token, newPassword) => {
     throw error;
   }
 
+  const { resetToken } = await prisma.user.findFirst({
+    where: { id: decoded.id },
+  });
+
+  if (resetToken !== token) {
+    const error = new Error("Expired token");
+    error.statusCode = 403;
+    throw error;
+  }
+
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-  const user = await prisma.user.update({
+  return await prisma.user.update({
     where: { id: decoded.id },
     data: { password: hashedPassword },
   });
-
-  return user;
 };
