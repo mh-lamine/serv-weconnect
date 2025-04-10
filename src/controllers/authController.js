@@ -201,6 +201,7 @@ exports.resetPassword = async (req, res) => {
     await authService.resetPassword(token, newPassword);
     return res.json({ message: "Password reset successful" });
   } catch (error) {
+    console.log(error)
     return res.status(error.statusCode || 500).json({ message: error.message });
   }
 };
