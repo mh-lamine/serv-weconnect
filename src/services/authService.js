@@ -401,6 +401,6 @@ exports.resetPassword = async (token, newPassword) => {
 
   return await prisma.user.update({
     where: { id: decoded.id },
-    data: { password: hashedPassword },
+    data: { resetToken: token, password: hashedPassword },
   });
 };
