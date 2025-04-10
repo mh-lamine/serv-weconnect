@@ -133,7 +133,6 @@ exports.registerSalon = async (data) => {
 };
 
 exports.loginUser = async (phoneNumber, password) => {
-  console.log("phoneNumczjnlvrber", phoneNumber);
   // Check if user exists
   const user = await prisma.user.findFirst({
     where: { phoneNumber },
