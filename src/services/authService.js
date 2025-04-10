@@ -390,6 +390,7 @@ exports.resetPassword = async (token, newPassword) => {
   });
 
   if (resetToken == token) {
+    console.log("Token already used");
     const error = new Error("Token already used");
     error.statusCode = 403;
     throw error;
@@ -400,6 +401,6 @@ exports.resetPassword = async (token, newPassword) => {
 
   return await prisma.user.update({
     where: { id: decoded.id },
-    data: { password: hashedPassword, resetToken: token },
+    data: { password: hashedPassword },
   });
 };
