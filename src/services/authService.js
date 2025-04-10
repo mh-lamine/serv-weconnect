@@ -398,7 +398,7 @@ exports.resetPassword = async (token, newPassword) => {
     where: { id: decoded.id },
   });
 
-  if (resetToken !== token) {
+  if (resetToken == token) {
     const error = new Error("Expired token");
     error.statusCode = 403;
     throw error;
