@@ -385,22 +385,11 @@ exports.forgotPassword = async (phoneNumber) => {
 exports.resetPassword = async (token, newPassword) => {
   const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-  const { resetToken } = await prisma.user.findFirst({
-    where: { id: decoded.id },
-  });
-
-  if (resetToken == token) {
-    console.log("Token already used");
-    const error = new Error("Token already used");
-    error.statusCode = 403;
-    throw error;
-  }
-
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(newPassword, salt);
 
   return await prisma.user.update({
     where: { id: decoded.id },
-    data: { resetToken: token, password: hashedPassword },
+    data: { password: hashedPassword },
   });
 };
