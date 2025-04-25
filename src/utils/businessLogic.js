@@ -98,7 +98,7 @@ exports.adjustAvailableRangesWithUnavailability = (
       .toString()
       .padStart(2, "0");
     const mins = (minutes % 60).toString().padStart(2, "0");
-    return `${hours}:${mins}:00.000+01:00`;
+    return `${hours}:${mins}:00.000+02:00`;
   }
 
   // Adjust available ranges based on unavailabilities
