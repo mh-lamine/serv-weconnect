@@ -4,7 +4,6 @@ const prisma = new PrismaClient();
 const { DateTime } = require("luxon");
 const { sendSMS } = require("../utils/businessLogic");
 
-
 exports.sendAppointmentReminders = async () => {
   try {
     const twoDaysFromNow = DateTime.now().plus({ days: 2 }).toISODate();
@@ -32,13 +31,9 @@ exports.sendAppointmentReminders = async () => {
           .toLocaleString(DateTime.TIME_SIMPLE);
 
         const message = `
-    Hey ${client.firstName} ! 👋
-Juste un petit rappel que ton rendez-vous pour ${service.name} est prévu le ${formattedDate} à ${formattedTime} ⏰.\n
-On a hâte de te voir ! 🤩\n
-Besoin de changer l'heure ou d'infos supplémentaires ? 
-Fais-le nous savoir directement ici.\n
+    Hey ${client.firstName} !
+Juste un petit rappel que ton rendez-vous pour ${service.name} est prévu le ${formattedDate} à ${formattedTime}.\n
 À très vite,
-L’équipe WeConnect 🚀
   `;
         return sendSMS(client.phoneNumber, message);
       });

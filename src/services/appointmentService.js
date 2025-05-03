@@ -31,8 +31,7 @@ exports.createAppointment = async (data, clientId) => {
         sendSMS(
           phoneNumber,
           `Vous avez une nouvelle demande de rendez-vous sur WeConnect 🎉👑\n
-Connectez-vous pour voir les détails.
-https://pro.weconnect-rdv.fr`
+Connectez-vous à votre espace pour voir les détails.`
         );
       return;
     }
@@ -220,8 +219,7 @@ exports.updateAppointment = async (userId, role, appointmentId, data) => {
         .toLocaleString(DateTime.TIME_SIMPLE);
       const message = `Votre rendez-vous du ${formattedDate} à ${formattedTime} a été ${
         data.status === "ACCEPTED" ? "accepté" : "annulé"
-      }.\nConnectez-vous pour voir les détails.\n
-https://www.weconnect-rdv.fr`;
+      }.\nConnectez-vous à votre espace pour voir les détails.`;
       sendSMS(phoneNumber, message);
     }
     return appointment;
