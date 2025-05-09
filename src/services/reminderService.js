@@ -28,7 +28,7 @@ exports.sendAppointmentReminders = async () => {
           .toLocaleString(DateTime.DATE_MED);
         const formattedTime = DateTime.fromISO(date)
           .setLocale("fr")
-          .toLocaleString(DateTime.TIME_SIMPLE);
+          .toFormat("HH'h'mm");
 
         const message = `
     Hey ${client.firstName} !
